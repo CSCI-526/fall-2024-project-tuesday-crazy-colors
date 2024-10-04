@@ -60,7 +60,9 @@ public class PlayerController : MonoBehaviour
 
         isGrounded = Physics2D.IsTouchingLayers(playerCollider, whatIsGroundLayer);
 
-        playerRigidbody.velocity = new Vector2(moveSpeed, playerRigidbody.velocity.y);
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
+        playerRigidbody.velocity = new Vector2(horizontalInput * moveSpeed, playerRigidbody.velocity.y);
+
 
         if (currentPlatform != null)
         {
@@ -71,20 +73,14 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded)
         {
-            if (isGrounded) {
-                playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            ChangeColorAscending(); 
+            playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
         }
 
-        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            ChangeColorDescending(); 
+            ChangeColorAscending(); 
         }
 
         fallCheckTimer += Time.deltaTime;
