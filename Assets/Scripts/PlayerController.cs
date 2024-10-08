@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed;
@@ -52,7 +51,6 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         if (!gameStarted)
         {
             return; 
@@ -62,7 +60,6 @@ public class PlayerController : MonoBehaviour
 
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         playerRigidbody.velocity = new Vector2(horizontalInput * moveSpeed, playerRigidbody.velocity.y);
-
 
         if (currentPlatform != null)
         {
@@ -98,12 +95,6 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.color = colorOrder[currentColorIndex];
     }
 
-    void ChangeColorDescending()
-    {
-        currentColorIndex = (currentColorIndex - 1 + colorOrder.Length) % colorOrder.Length;
-        spriteRenderer.color = colorOrder[currentColorIndex];
-    }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Platform"))
@@ -115,7 +106,12 @@ public class PlayerController : MonoBehaviour
             {
                 EndGame(); 
                 Debug.Log("Game Over! Player landed on a different color platform.");
-            } else {
+            } 
+            else
+            {
+                // Makes the platform parent
+                transform.SetParent(collision.transform);
+
                 // Score logic
                 if (scoreManager != null)
                 {
@@ -131,14 +127,13 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = null; 
+            // remove platofrm as a parent
+            transform.SetParent(null);
         }
     }
 
-    
     void EndGame()
     {
-        
-        
         if (endGameUI != null)
         {
             endGameUI.SetActive(true); 
@@ -147,8 +142,8 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.enabled = false;
         playerRigidbody.simulated = false;
         playerCollider.enabled = false;
-
     }
+
     public void RetryGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
