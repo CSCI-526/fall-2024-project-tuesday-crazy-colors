@@ -24,9 +24,8 @@ public class PlatformGenerator : MonoBehaviour
 
         platformColors = new Color[] {
             Color.red,
-            Color.blue,
-            Color.green,
             Color.yellow,
+            Color.green,
         };
     }
 
@@ -51,6 +50,9 @@ public class PlatformGenerator : MonoBehaviour
             // Random colors for platform
             Renderer platformRenderer = newPlatform.GetComponent<Renderer>();
             platformRenderer.material.color = platformColors[Random.Range(0, platformColors.Length)];
+
+            // Moving platform script
+            newPlatform.AddComponent<PlatformMover>(); 
         }
     }
 }
