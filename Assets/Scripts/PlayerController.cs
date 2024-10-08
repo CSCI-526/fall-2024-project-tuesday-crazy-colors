@@ -28,6 +28,15 @@ public class PlayerController : MonoBehaviour
     public GameObject startGameUI;
     private bool gameStarted = false;
 
+    // tk shadow
+    public GameObject shadow; 
+    public float shadowDelay = 1f; 
+    private List<Vector3> recordedPositions = new List<Vector3>(); 
+    private bool shadowStarted = false;
+    private float shadowStartTimer = 0f;
+    private int delayFrames;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -46,6 +55,10 @@ public class PlayerController : MonoBehaviour
         {
             startGameUI.SetActive(true);
         }
+
+        // tk 
+        delayFrames = Mathf.RoundToInt(shadowDelay / Time.deltaTime);
+
     }
 
     // Update is called once per frame
@@ -60,6 +73,25 @@ public class PlayerController : MonoBehaviour
 
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         playerRigidbody.velocity = new Vector2(horizontalInput * moveSpeed, playerRigidbody.velocity.y);
+
+
+        if (gameStarted)
+        {
+            recordedPositions.Add(transform.position);
+
+            // Start shadow after delay time has passed
+            if (!shadowStarted)
+            {
+                shadowStartTimer += Time.deltaTime;
+                if (shadowStartTimer >= shadowDelay)
+                {
+                    shadowStarted = true;
+                    shadow.SetActive(true); // Activate shadow after delay
+                }
+            }
+        }
+
+
 
         if (currentPlatform != null)
         {
@@ -86,6 +118,18 @@ public class PlayerController : MonoBehaviour
         {
             EndGame(); 
             Debug.Log("Game Over! Player missed the next Platform.");
+        }
+
+         ShadowControl();
+    }
+
+    private void ShadowControl()
+    {
+        if (shadowStarted && recordedPositions.Count > delayFrames)
+        {
+             
+            shadow.transform.position = recordedPositions[0];
+            recordedPositions.RemoveAt(0); 
         }
     }
 
@@ -120,6 +164,12 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+
+        if (collision.gameObject.CompareTag("shadow"))
+        {
+            EndGame(); // End the game if the shadow collides with the player
+            Debug.Log("Game Over! Shadow collided with the player.");
+        }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
@@ -142,6 +192,11 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.enabled = false;
         playerRigidbody.simulated = false;
         playerCollider.enabled = false;
+
+        if (shadow != null)
+        {
+            shadow.SetActive(false);
+        }
     }
 
     public void RetryGame()
