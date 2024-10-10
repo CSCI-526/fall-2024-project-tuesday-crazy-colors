@@ -762,7 +762,7 @@ MonoBehaviour:
   distanceBetweenMin: 5
   distanceBetweenMax: 5
   powerUpPrefab: {fileID: 433433514180583560, guid: 088f0b77b6ee14d47848ae2068f1a74b, type: 3}
-  powerUpInterval: 5
+  powerUpInterval: 10
   platformColors: []
   verticalOffsetRange: 5
 --- !u!1 &581969583

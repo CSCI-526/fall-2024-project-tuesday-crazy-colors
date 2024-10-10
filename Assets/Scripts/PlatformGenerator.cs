@@ -13,7 +13,7 @@ public class PlatformGenerator : MonoBehaviour
 
     // Power up
     public GameObject powerUpPrefab;
-    public int powerUpInterval = 10;
+    public int powerUpInterval;
     private int platformCount = 0;
 
     // Colors
