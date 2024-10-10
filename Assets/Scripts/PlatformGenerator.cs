@@ -11,6 +11,11 @@ public class PlatformGenerator : MonoBehaviour
     public float distanceBetweenMax;
     private float platformWidth;
 
+    // Power up
+    public GameObject powerUpPrefab;
+    public int powerUpInterval;
+    private int platformCount = 0;
+
     // Colors
     public Color[] platformColors;
 
@@ -53,6 +58,14 @@ public class PlatformGenerator : MonoBehaviour
 
             // Moving platform script
             newPlatform.AddComponent<PlatformMover>(); 
+
+            // Spawning white power-up
+            platformCount++;
+            if (platformCount >= powerUpInterval)
+            {
+                Instantiate(powerUpPrefab, newPlatform.transform.position + Vector3.up, Quaternion.identity);
+                platformCount = 0;
+            }
         }
     }
 }
