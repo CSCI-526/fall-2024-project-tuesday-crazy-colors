@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Threading.Tasks;
 
 public class PlayerController : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class PlayerController : MonoBehaviour
     public ScoreManager scoreManager;
 
     private SpriteRenderer spriteRenderer;
-    private Color[] colorOrder = { Color.red, Color.blue, Color.green, Color.yellow };
+    private Color[] colorOrder = { Color.red, Color.green, Color.yellow };
     private int currentColorIndex = 0;
 
     public float fallThreshold = -12f;
@@ -35,6 +36,8 @@ public class PlayerController : MonoBehaviour
     private bool shadowStarted = false;
     private float shadowStartTimer = 0f;
     private int delayFrames;
+
+    private bool canJumpOnAnyPlatform = false;
 
 
     // Start is called before the first frame update
@@ -96,7 +99,7 @@ public class PlayerController : MonoBehaviour
         if (currentPlatform != null)
         {
             Color platformColor = currentPlatform.GetComponent<Renderer>().material.color;
-            if (spriteRenderer.color != platformColor)
+            if (spriteRenderer.color != platformColor && canJumpOnAnyPlatform == false)
             {
                 EndGame(); 
             }
@@ -123,6 +126,22 @@ public class PlayerController : MonoBehaviour
          ShadowControl();
     }
 
+    public async Task TemporaryColorChange(Color newColor, float duration)
+    {
+        Color originalColor = spriteRenderer.color;
+        spriteRenderer.color = newColor;
+
+        canJumpOnAnyPlatform = true;
+        Debug.Log(canJumpOnAnyPlatform);
+
+        await Task.Delay((int)(duration * 1000));
+
+        spriteRenderer.color = originalColor;
+        canJumpOnAnyPlatform = false;
+
+        Debug.Log("Player color reverted to original after power-up.");
+    }
+
     private void ShadowControl()
     {
         if (shadowStarted && recordedPositions.Count > delayFrames)
@@ -146,7 +165,7 @@ public class PlayerController : MonoBehaviour
             currentPlatform = collision.gameObject;
             Color platformColor = collision.gameObject.GetComponent<Renderer>().material.color;
 
-            if (spriteRenderer.color != platformColor)
+            if (spriteRenderer.color != platformColor && canJumpOnAnyPlatform == false)
             {
                 EndGame(); 
                 Debug.Log("Game Over! Player landed on a different color platform.");
