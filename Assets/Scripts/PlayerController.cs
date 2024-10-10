@@ -37,7 +37,10 @@ public class PlayerController : MonoBehaviour
     private float shadowStartTimer = 0f;
     private int delayFrames;
 
+    // white power up
     private bool canJumpOnAnyPlatform = false;
+    public Text powerUpTimerText;
+    private Color originalColor;
 
 
     // Start is called before the first frame update
@@ -134,12 +137,33 @@ public class PlayerController : MonoBehaviour
         canJumpOnAnyPlatform = true;
         Debug.Log(canJumpOnAnyPlatform);
 
-        await Task.Delay((int)(duration * 1000));
+        float remainingTime = duration;
+
+        while (remainingTime > 0)
+        {
+            powerUpTimerText.text = "Turning back to " + GetColorName(originalColor) + " in " + remainingTime.ToString("F1") + " secs";
+
+            await Task.Delay(100);
+            
+            remainingTime -= 0.1f;
+        }
+
+        // await Task.Delay((int)(duration * 1000));
 
         spriteRenderer.color = originalColor;
         canJumpOnAnyPlatform = false;
 
         Debug.Log("Player color reverted to original after power-up.");
+        powerUpTimerText.text = "";
+    }
+
+    private string GetColorName(Color color)
+    {
+        if (color == Color.red) return "red";
+        if (color == Color.blue) return "blue";
+        if (color == Color.green) return "green";
+        if (color == Color.yellow) return "yellow";
+        return "unknown color";
     }
 
     private void ShadowControl()
