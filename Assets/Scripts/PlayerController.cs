@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private Collider2D playerCollider;
     public GameObject endGameUI;
     public ScoreManager scoreManager;
+    public SendtoGoogle sendtoGoogle;
 
     private SpriteRenderer spriteRenderer;
     private Color[] colorOrder = { Color.red, Color.green, Color.yellow };
@@ -240,6 +241,17 @@ public class PlayerController : MonoBehaviour
         {
             shadow.SetActive(false);
         }
+
+        SendtoGoogle sendToGoogle = FindObjectOfType<SendtoGoogle>();
+        if (sendToGoogle != null)
+        {
+            sendToGoogle.Send();  // Call the Send() method
+            Debug.Log("Send method called successfully in EndGame.");
+        }
+        else
+        {
+            Debug.LogError("SendtoGoogle instance not found.");
+        } 
     }
 
     public void RetryGame()
