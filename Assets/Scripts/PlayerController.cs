@@ -37,11 +37,12 @@ public class PlayerController : MonoBehaviour
     private float shadowStartTimer = 0f;
     private int delayFrames;
 
-    // white power up
+    // power-up invincibility
     private bool canJumpOnAnyPlatform = false;
     public Text powerUpTimerText;
-    private Color originalColor;
 
+    // Track if power-up is active
+    private bool powerUpActive = false;
 
     // Start is called before the first frame update
     void Start()
@@ -80,12 +81,10 @@ public class PlayerController : MonoBehaviour
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         playerRigidbody.velocity = new Vector2(horizontalInput * moveSpeed, playerRigidbody.velocity.y);
 
-
         if (gameStarted)
         {
             recordedPositions.Add(transform.position);
 
-            // Start shadow after delay time has passed
             if (!shadowStarted)
             {
                 shadowStartTimer += Time.deltaTime;
@@ -97,12 +96,10 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-
-
         if (currentPlatform != null)
         {
             Color platformColor = currentPlatform.GetComponent<Renderer>().material.color;
-            if (spriteRenderer.color != platformColor && canJumpOnAnyPlatform == false)
+            if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
                 EndGame(); 
             }
@@ -126,51 +123,68 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Game Over! Player missed the next Platform.");
         }
 
-         ShadowControl();
+        ShadowControl();
     }
 
-    public async Task TemporaryColorChange(Color newColor, float duration)
+    public async Task TemporaryPowerUpEffect(float duration)
     {
-        Color originalColor = spriteRenderer.color;
-        spriteRenderer.color = newColor;
+        // Power-up active
+        powerUpActive = true;
 
+        // Reduce opacity and allow player to jump on any platform
+        SetPlayerOpacity(0.5f);
         canJumpOnAnyPlatform = true;
-        Debug.Log(canJumpOnAnyPlatform);
 
         float remainingTime = duration;
 
         while (remainingTime > 0)
         {
-            powerUpTimerText.text = "Turning back to " + GetColorName(originalColor) + " in " + remainingTime.ToString("F1") + " secs";
+            powerUpTimerText.text = "Invincible for " + remainingTime.ToString("F1") + " secs";
 
-            await Task.Delay(100);
-            
+            await Task.Delay(100);  // 0.1 second delay
             remainingTime -= 0.1f;
         }
 
-        // await Task.Delay((int)(duration * 1000));
-
-        spriteRenderer.color = originalColor;
+        // Restore full opacity and end power-up effect
+        SetPlayerOpacity(1f);
         canJumpOnAnyPlatform = false;
+        powerUpActive = false;
 
-        Debug.Log("Player color reverted to original after power-up.");
+        Debug.Log("Player returned to original state after power-up.");
         powerUpTimerText.text = "";
     }
 
-    private string GetColorName(Color color)
+    void SetPlayerOpacity(float opacity)
     {
-        if (color == Color.red) return "red";
-        if (color == Color.blue) return "blue";
-        if (color == Color.green) return "green";
-        if (color == Color.yellow) return "yellow";
-        return "unknown color";
+        Color currentColor = spriteRenderer.color;
+        currentColor.a = opacity; // Set opacity
+        spriteRenderer.color = currentColor; // Apply color change
+    }
+
+    // Override EndGame temporarily for invincibility
+    void EndGame()
+    {
+        if (!canJumpOnAnyPlatform) // If not invincible, end the game
+        {
+            if (endGameUI != null)
+            {
+                endGameUI.SetActive(true); 
+            }
+            spriteRenderer.enabled = false;
+            playerRigidbody.simulated = false;
+            playerCollider.enabled = false;
+
+            if (shadow != null)
+            {
+                shadow.SetActive(false);
+            }
+        }
     }
 
     private void ShadowControl()
     {
         if (shadowStarted && recordedPositions.Count > delayFrames)
         {
-             
             shadow.transform.position = recordedPositions[0];
             recordedPositions.RemoveAt(0); 
         }
@@ -179,7 +193,16 @@ public class PlayerController : MonoBehaviour
     void ChangeColorAscending()
     {
         currentColorIndex = (currentColorIndex + 1) % colorOrder.Length;
-        spriteRenderer.color = colorOrder[currentColorIndex];
+
+        Color newColor = colorOrder[currentColorIndex];
+
+        // If power-up is active, maintain reduced opacity when changing color
+        if (powerUpActive)
+        {
+            newColor.a = 0.5f; // Maintain semi-transparency
+        }
+
+        spriteRenderer.color = newColor; // Apply color change
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -189,7 +212,7 @@ public class PlayerController : MonoBehaviour
             currentPlatform = collision.gameObject;
             Color platformColor = collision.gameObject.GetComponent<Renderer>().material.color;
 
-            if (spriteRenderer.color != platformColor && canJumpOnAnyPlatform == false)
+            if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
                 EndGame(); 
                 Debug.Log("Game Over! Player landed on a different color platform.");
@@ -220,25 +243,8 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = null; 
-            // remove platofrm as a parent
+            // remove platform as a parent
             transform.SetParent(null);
-        }
-    }
-
-    void EndGame()
-    {
-        if (endGameUI != null)
-        {
-            endGameUI.SetActive(true); 
-        }
-        //Destroy(gameObject);
-        spriteRenderer.enabled = false;
-        playerRigidbody.simulated = false;
-        playerCollider.enabled = false;
-
-        if (shadow != null)
-        {
-            shadow.SetActive(false);
         }
     }
 
