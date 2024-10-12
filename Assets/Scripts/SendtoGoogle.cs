@@ -62,9 +62,9 @@ public class SendtoGoogle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            Send();
-        }
+        // if (Input.GetKeyDown(KeyCode.S))
+        // {
+        //     Send();
+        // }
     }
 }

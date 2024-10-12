@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     public GameObject endGameUI;
     public ScoreManager scoreManager;
     public SendtoGoogle sendtoGoogle;
+    private bool dataSent = false;
 
     private SpriteRenderer spriteRenderer;
     private Color[] colorOrder = { Color.red, Color.green, Color.yellow };
@@ -242,10 +243,13 @@ public class PlayerController : MonoBehaviour
             shadow.SetActive(false);
         }
 
+        if (dataSent) return; // Prevent multiple calls
+        dataSent = true;
+
         SendtoGoogle sendToGoogle = FindObjectOfType<SendtoGoogle>();
         if (sendToGoogle != null)
         {
-            sendToGoogle.Send();  // Call the Send() method
+            sendToGoogle.Send();  
             Debug.Log("Send method called successfully in EndGame.");
         }
         else
