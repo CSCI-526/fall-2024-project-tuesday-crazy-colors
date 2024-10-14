@@ -164,20 +164,17 @@ public class PlayerController : MonoBehaviour
     // Override EndGame temporarily for invincibility
     void EndGame()
     {
-        if (!canJumpOnAnyPlatform) // If not invincible, end the game
+        if (endGameUI != null)
         {
-            if (endGameUI != null)
-            {
-                endGameUI.SetActive(true); 
-            }
-            spriteRenderer.enabled = false;
-            playerRigidbody.simulated = false;
-            playerCollider.enabled = false;
+            endGameUI.SetActive(true); 
+        }
+        spriteRenderer.enabled = false;
+        playerRigidbody.simulated = false;
+        playerCollider.enabled = false;
 
-            if (shadow != null)
-            {
-                shadow.SetActive(false);
-            }
+        if (shadow != null)
+        {
+            shadow.SetActive(false);
         }
     }
 
