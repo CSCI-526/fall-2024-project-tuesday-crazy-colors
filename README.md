@@ -14,8 +14,8 @@ Logline: A 2D platformer game where the player jumps on different color platform
 7. git branch --set-upstream-to origin/main
 
 
-## Prototype Build:
-https://atharvaswami.github.io/crazy-colors/WebGL%20Builds/index.html
+## Alpha Build:
+https://devkansara.github.io/Crazy-Colors-Alpha-Progress/
 
 ## YouTube Link:
 https://youtu.be/dFNQJxl-TCQ
