@@ -126,12 +126,43 @@ public class PlayerController : MonoBehaviour
         ShadowControl();
     }
 
-    public async Task TemporaryPowerUpEffect(float duration)
+    // public async Task TemporaryPowerUpEffect(float duration)
+    // {
+    //     // Power-up active
+    //     powerUpActive = true;
+
+    //     // Reduce opacity and allow player to jump on any platform
+    //     SetPlayerOpacity(0.5f);
+    //     canJumpOnAnyPlatform = true;
+
+    //     float remainingTime = duration;
+
+    //     while (remainingTime > 0)
+    //     {
+    //         powerUpTimerText.text = "Invincible for " + remainingTime.ToString("F1") + " secs";
+
+    //         await Task.Delay(100);  // 0.1 second delay
+    //         remainingTime -= 0.1f;
+    //     }
+
+    //     // Restore full opacity and end power-up effect
+    //     SetPlayerOpacity(1f);
+    //     canJumpOnAnyPlatform = false;
+    //     powerUpActive = false;
+
+    //     Debug.Log("Player returned to original state after power-up.");
+    //     powerUpTimerText.text = "";
+    // }
+
+    public void TemporaryPowerUpEffect(float duration)
     {
-        // Power-up active
+        StartCoroutine(PowerUpEffectCoroutine(duration));
+    }
+
+    private IEnumerator PowerUpEffectCoroutine(float duration)
+    {
         powerUpActive = true;
 
-        // Reduce opacity and allow player to jump on any platform
         SetPlayerOpacity(0.5f);
         canJumpOnAnyPlatform = true;
 
@@ -141,11 +172,10 @@ public class PlayerController : MonoBehaviour
         {
             powerUpTimerText.text = "Invincible for " + remainingTime.ToString("F1") + " secs";
 
-            await Task.Delay(100);  // 0.1 second delay
+            yield return new WaitForSeconds(0.1f);  // 0.1 second delay
             remainingTime -= 0.1f;
         }
 
-        // Restore full opacity and end power-up effect
         SetPlayerOpacity(1f);
         canJumpOnAnyPlatform = false;
         powerUpActive = false;
