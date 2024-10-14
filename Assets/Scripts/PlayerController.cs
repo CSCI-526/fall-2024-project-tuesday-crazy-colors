@@ -305,8 +305,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // public void RetryGame()
+    // {
+    //     dataSent = false;
+    //     SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    // }
+
     public void RetryGame()
     {
+        SendToGoogle googleInstance = SendToGoogle.Instance; // Get the singleton instance
+        if (googleInstance != null)
+        {
+            googleInstance.ResetDataSent(); // Reset the data sent flag
+        }
+
+        dataSent = false; // Reset this in case it's still true
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 

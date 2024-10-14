@@ -58,11 +58,12 @@ public class SendToGoogle : MonoBehaviour
             Debug.Log("Data has already been sent. Skipping.");
             return;
         }
-
-        // score = FindObjectOfType<ScoreManager>().score;
-        Debug.Log("Score to send: " + score);
+        
+        // Set the flag to true, as we're about to send data
+        dataSent = true;
 
         maxScore = FindObjectOfType<ScoreManager>().maxScore;
+        Debug.Log("Score to send: " + score);
         Debug.Log("Max Score to send: " + maxScore);
 
         gamePlayTime = (int)(DateTime.Now - sessionStartTime).TotalSeconds;
@@ -71,7 +72,6 @@ public class SendToGoogle : MonoBehaviour
 
         await Post(sessionID.ToString(), score.ToString(), maxScore.ToString(), gamePlayTime.ToString()); // Call async method
 
-        dataSent = true; 
         lastSendTime = Time.time; // Update last send time
     }
 
@@ -113,6 +113,11 @@ public class SendToGoogle : MonoBehaviour
                 Debug.Log("Data sent successfully!");
             }
         }
+    }
+
+    public void ResetDataSent()
+    {
+        dataSent = false; // Reset the data sent flag
     }
 
     void Start()
