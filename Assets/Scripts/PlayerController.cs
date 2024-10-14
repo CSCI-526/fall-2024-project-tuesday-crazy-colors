@@ -166,8 +166,6 @@ public class PlayerController : MonoBehaviour
         powerUpTimerText.color = Color.white;
     }
 
-
-
     void SetPlayerOpacity(float opacity)
     {
         Color currentColor = spriteRenderer.color;
