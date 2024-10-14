@@ -1,7 +1,7 @@
 
 # Crazy Colors
 
-Logline: A 2D platformer game where the player jumps on different color platforms where the player must changes colors in mid air to match the next platform’s color.
+Logline: Crazy Colors is an endless runner game where you have to jump between platforms, match colors to survive, outrun the shadow chasing you where power-ups give the player brief color invincibility.
 
 ## Setup
 
