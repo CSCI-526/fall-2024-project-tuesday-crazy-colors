@@ -16,12 +16,17 @@ public class PlayerController : MonoBehaviour
     public GameObject endGameUI;
     public ScoreManager scoreManager;
 
+    public SendToGoogle sendToGoogle;
+    private bool dataSent = false;
+    private bool gameEnded = false;
+    private int finalScoreToSend = 0;
+
     private SpriteRenderer spriteRenderer;
     private Color[] colorOrder = { Color.red, Color.green, Color.yellow };
     private int currentColorIndex = 0;
 
     public float fallThreshold = -12f;
-    public float fallCheckDelay = 0.5f; 
+    public float fallCheckDelay = 0.5f;
     private float fallCheckTimer = 0f;
 
     private GameObject currentPlatform;
@@ -30,9 +35,9 @@ public class PlayerController : MonoBehaviour
     private bool gameStarted = false;
 
     // tk shadow
-    public GameObject shadow; 
-    public float shadowDelay = 1f; 
-    private List<Vector3> recordedPositions = new List<Vector3>(); 
+    public GameObject shadow;
+    public float shadowDelay = 1f;
+    private List<Vector3> recordedPositions = new List<Vector3>();
     private bool shadowStarted = false;
     private float shadowStartTimer = 0f;
     private int delayFrames;
@@ -73,7 +78,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!gameStarted)
         {
-            return; 
+            return;
         }
 
         isGrounded = Physics2D.IsTouchingLayers(playerCollider, whatIsGroundLayer);
@@ -101,7 +106,8 @@ public class PlayerController : MonoBehaviour
             Color platformColor = currentPlatform.GetComponent<Renderer>().material.color;
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
-                EndGame(); 
+                EndGame();
+                return;
             }
         }
 
@@ -112,15 +118,18 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            ChangeColorAscending(); 
+            ChangeColorAscending();
         }
 
         fallCheckTimer += Time.deltaTime;
 
         if (transform.position.y < fallThreshold && fallCheckTimer > fallCheckDelay)
         {
-            EndGame(); 
+            EndGame();
             Debug.Log("Game Over! Player missed the next Platform.");
+            fallCheckTimer = 0f;
+            // gameEnded = true;
+            return;
         }
 
         ShadowControl();
@@ -196,7 +205,7 @@ public class PlayerController : MonoBehaviour
     {
         if (endGameUI != null)
         {
-            endGameUI.SetActive(true); 
+            endGameUI.SetActive(true);
         }
         spriteRenderer.enabled = false;
         playerRigidbody.simulated = false;
@@ -206,6 +215,27 @@ public class PlayerController : MonoBehaviour
         {
             shadow.SetActive(false);
         }
+
+        if (scoreManager != null)
+        {
+            finalScoreToSend = scoreManager.score; // Store the current score to send
+            scoreManager.SaveScore();
+        }
+
+        if (!dataSent)
+        {
+            dataSent = true;
+            SendToGoogle googleInstance = SendToGoogle.Instance; // Get the singleton instance
+            if (googleInstance != null)
+            {
+                googleInstance.Send(finalScoreToSend); // Pass the stored score to the Send method
+                Debug.Log("Send method called successfully in EndGame with score: " + finalScoreToSend);
+            }
+            else
+            {
+                Debug.LogError("SendToGoogle instance not found.");
+            }
+        }
     }
 
     private void ShadowControl()
@@ -213,7 +243,7 @@ public class PlayerController : MonoBehaviour
         if (shadowStarted && recordedPositions.Count > delayFrames)
         {
             shadow.transform.position = recordedPositions[0];
-            recordedPositions.RemoveAt(0); 
+            recordedPositions.RemoveAt(0);
         }
     }
 
@@ -241,9 +271,9 @@ public class PlayerController : MonoBehaviour
 
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
-                EndGame(); 
+                EndGame();
                 Debug.Log("Game Over! Player landed on a different color platform.");
-            } 
+            }
             else
             {
                 // Makes the platform parent
@@ -269,7 +299,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Platform"))
         {
-            currentPlatform = null; 
+            currentPlatform = null;
             // remove platform as a parent
             transform.SetParent(null);
         }
@@ -285,8 +315,8 @@ public class PlayerController : MonoBehaviour
         gameStarted = true;
         if (startGameUI != null)
         {
-            startGameUI.SetActive(false); 
+            startGameUI.SetActive(false);
         }
-        playerRigidbody.simulated = true; 
+        playerRigidbody.simulated = true;
     }
 }
