@@ -28,8 +28,7 @@ public class PlayerController : MonoBehaviour
 
     public GameObject startGameUI;
     private bool gameStarted = false;
-
-    // tk shadow
+    
     public GameObject shadow;
     public float shadowDelay = 1f;
     private List<Vector3> recordedPositions = new List<Vector3>();
@@ -63,7 +62,6 @@ public class PlayerController : MonoBehaviour
             startGameUI.SetActive(true);
         }
 
-        // tk 
         delayFrames = Mathf.RoundToInt(shadowDelay / Time.deltaTime);
 
     }
@@ -128,10 +126,8 @@ public class PlayerController : MonoBehaviour
 
     public async Task TemporaryPowerUpEffect(float duration)
     {
-        // Power-up active
         powerUpActive = true;
 
-        // Reduce opacity and allow player to jump on any platform
         SetPlayerOpacity(0.5f);
         canJumpOnAnyPlatform = true;
 
@@ -152,11 +148,10 @@ public class PlayerController : MonoBehaviour
                 powerUpTimerText.color = (remainingTime % 0.5f > 0.25f) ? Color.red : Color.white;
             }
 
-            yield return new WaitForSeconds(0.1f);  // 0.1 second delay
+            yield return new WaitForSeconds(0.1f);
             remainingTime -= 0.1f;
         }
 
-        // Restore full opacity and end power-up effect
         SetPlayerOpacity(1f);
         canJumpOnAnyPlatform = false;
         powerUpActive = false;
@@ -169,8 +164,8 @@ public class PlayerController : MonoBehaviour
     void SetPlayerOpacity(float opacity)
     {
         Color currentColor = spriteRenderer.color;
-        currentColor.a = opacity; // Set opacity
-        spriteRenderer.color = currentColor; // Apply color change
+        currentColor.a = opacity; 
+        spriteRenderer.color = currentColor;
     }
 
     // Override EndGame temporarily for invincibility
@@ -184,10 +179,9 @@ public class PlayerController : MonoBehaviour
         playerRigidbody.simulated = false;
         playerCollider.enabled = false;
 
-            if (shadow != null)
-            {
-                shadow.SetActive(false);
-            }
+        if (shadow != null)
+        {
+            shadow.SetActive(false);
         }
     }
 
