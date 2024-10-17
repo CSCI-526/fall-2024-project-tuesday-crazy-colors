@@ -1,3 +1,5 @@
+
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -49,6 +51,13 @@ public class PlayerController : MonoBehaviour
     // Track if power-up is active
     private bool powerUpActive = false;
 
+    // Track if shadow immunity is active
+    private bool isShadowImmune = false; 
+    public Text shadowImmunityTimerText; // Text for shadow immunity countdown
+    private bool shadowImmunityActive = false;
+
+    public GameObject mergeEffectPrefab; 
+
     // Start is called before the first frame update
     void Start()
     {
@@ -70,7 +79,6 @@ public class PlayerController : MonoBehaviour
 
         // tk 
         delayFrames = Mathf.RoundToInt(shadowDelay / Time.deltaTime);
-
     }
 
     // Update is called once per frame
@@ -128,40 +136,38 @@ public class PlayerController : MonoBehaviour
             EndGame();
             Debug.Log("Game Over! Player missed the next Platform.");
             fallCheckTimer = 0f;
-            // gameEnded = true;
             return;
         }
 
         ShadowControl();
     }
 
-    // public async Task TemporaryPowerUpEffect(float duration)
-    // {
-    //     // Power-up active
-    //     powerUpActive = true;
+    public void ActivateShadowImmunity(float duration)
+    {
+        if (!shadowImmunityActive)
+        {
+            shadowImmunityActive = true;
+            isShadowImmune = true; // Set immunity to true
+            StartCoroutine(ShadowImmunityCoroutine(duration));
+        }
+    }
 
-    //     // Reduce opacity and allow player to jump on any platform
-    //     SetPlayerOpacity(0.5f);
-    //     canJumpOnAnyPlatform = true;
+    private IEnumerator ShadowImmunityCoroutine(float duration)
+    {
+        float remainingTime = duration;
 
-    //     float remainingTime = duration;
+        while (remainingTime > 0)
+        {
+            // Update the countdown timer text
+            shadowImmunityTimerText.text = "Shadow Invincible for " +remainingTime.ToString("F1") + " secs"; // Display as integer
+            yield return new WaitForSeconds(1f); // Wait for 1 second
+            remainingTime--;
+        }
 
-    //     while (remainingTime > 0)
-    //     {
-    //         powerUpTimerText.text = "Invincible for " + remainingTime.ToString("F1") + " secs";
-
-    //         await Task.Delay(100);  // 0.1 second delay
-    //         remainingTime -= 0.1f;
-    //     }
-
-    //     // Restore full opacity and end power-up effect
-    //     SetPlayerOpacity(1f);
-    //     canJumpOnAnyPlatform = false;
-    //     powerUpActive = false;
-
-    //     Debug.Log("Player returned to original state after power-up.");
-    //     powerUpTimerText.text = "";
-    // }
+        isShadowImmune = false;
+        shadowImmunityActive = false; // Reset immunity state
+        shadowImmunityTimerText.text = ""; // Clear the timer text
+    }
 
     public void TemporaryPowerUpEffect(float duration)
     {
@@ -179,7 +185,7 @@ public class PlayerController : MonoBehaviour
 
         while (remainingTime > 0)
         {
-            powerUpTimerText.text = "Invincible for " + remainingTime.ToString("F1") + " secs";
+            powerUpTimerText.text = "Color Invincible for " + remainingTime.ToString("F1") + " secs";
 
             yield return new WaitForSeconds(0.1f);  // 0.1 second delay
             remainingTime -= 0.1f;
@@ -276,7 +282,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                // Makes the platform parent
+                
                 transform.SetParent(collision.transform);
 
                 // Score logic
@@ -288,48 +294,72 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // Check for shadow collision
         if (collision.gameObject.CompareTag("shadow"))
         {
-            EndGame(); // End the game if the shadow collides with the player
-            Debug.Log("Game Over! Shadow collided with the player.");
+            if (!isShadowImmune)
+            {
+                EndGame(); 
+                Debug.Log("Game Over! Shadow collided with the player.");
+            }
+            else
+            {
+                Debug.Log("Shadow collision avoided due to immunity.");
+                AbsorbShadow(); 
+            }
         }
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+public void AbsorbShadow()
+{
+    if (shadow != null)
+    {
+       
+        if (isShadowImmune)
+        {
+            Debug.Log("Cannot absorb shadow while black power-up is active.");
+            return; 
+        }
+
+       
+        Vector3 mergePosition = shadow.transform.position;
+        Instantiate(mergeEffectPrefab, mergePosition, Quaternion.identity);
+
+       
+        shadow.transform.position = transform.position;
+        shadow.SetActive(false);
+
+        Debug.Log("Shadow absorbed by player!");
+    }
+}
+
+private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = null;
-            // remove platform as a parent
+            
             transform.SetParent(null);
         }
     }
 
-    // public void RetryGame()
-    // {
-    //     dataSent = false;
-    //     SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    // }
-
-    public void RetryGame()
+        public void RetryGame()
     {
-        SendToGoogle googleInstance = SendToGoogle.Instance; // Get the singleton instance
+        SendToGoogle googleInstance = SendToGoogle.Instance; 
         if (googleInstance != null)
         {
-            googleInstance.ResetDataSent(); // Reset the data sent flag
+            googleInstance.ResetDataSent(); 
         }
 
-        dataSent = false; // Reset this in case it's still true
+        dataSent = false; 
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    // Trigger the game start
     public void StartGame()
     {
         gameStarted = true;
-        if (startGameUI != null)
-        {
-            startGameUI.SetActive(false);
-        }
         playerRigidbody.simulated = true;
+        startGameUI.SetActive(false);
     }
 }
