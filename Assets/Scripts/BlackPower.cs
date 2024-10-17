@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class BlackPower : MonoBehaviour
 {
-    public float duration = 5f; 
+    public float duration = 10f; 
     private PlayerController playerController;
 
     private void OnTriggerEnter2D(Collider2D collision)

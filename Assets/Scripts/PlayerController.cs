@@ -159,7 +159,7 @@ public class PlayerController : MonoBehaviour
         while (remainingTime > 0)
         {
             // Update the countdown timer text
-            shadowImmunityTimerText.text = "Shadow Immunity: " + Mathf.Ceil(remainingTime).ToString(); // Display as integer
+            shadowImmunityTimerText.text = "Shadow Invincible for " +remainingTime.ToString("F1") + " secs"; // Display as integer
             yield return new WaitForSeconds(1f); // Wait for 1 second
             remainingTime--;
         }
