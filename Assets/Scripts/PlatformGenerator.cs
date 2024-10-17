@@ -11,15 +11,16 @@ public class PlatformGenerator : MonoBehaviour
     public float distanceBetweenMax;
     private float platformWidth;
 
-    // Power up
-    public GameObject powerUpPrefab;
-    public int powerUpInterval;
+   
+    public GameObject whitePowerUpPrefab;
+    public GameObject blackPowerUpPrefab;
+    public int powerUpInterval; 
     private int platformCount = 0;
 
-    // Colors
+    
     public Color[] platformColors;
 
-    // Select vertical offset range
+   
     public float verticalOffsetRange = 10.0f;
 
     // Start is called before the first frame update
@@ -41,31 +42,34 @@ public class PlatformGenerator : MonoBehaviour
 
         if (transform.position.x < generationPoint.position.x)
         {
-            // Vertical offset
+            
             float verticalOffset = Random.Range(-verticalOffsetRange, verticalOffsetRange);
-
-            // New platform vertically positioned
             transform.position = new Vector3(transform.position.x + platformWidth + distanceBetween, transform.position.y + verticalOffset, transform.position.z);
 
-            // Instantiate the platform
+            
             GameObject newPlatform = Instantiate(platform, transform.position, transform.rotation);
-
             newPlatform.tag = "Platform";
 
-            // Random colors for platform
+           
             Renderer platformRenderer = newPlatform.GetComponent<Renderer>();
             platformRenderer.material.color = platformColors[Random.Range(0, platformColors.Length)];
 
-            // Moving platform script
-            newPlatform.AddComponent<PlatformMover>(); 
+            
+            newPlatform.AddComponent<PlatformMover>();
 
-            // Spawning white power-up
+            // Power-up spawning logic
             platformCount++;
             if (platformCount >= powerUpInterval)
             {
-                Instantiate(powerUpPrefab, newPlatform.transform.position + Vector3.up, Quaternion.identity);
-                platformCount = 0;
+                platformCount = 0; 
+
+                
+                GameObject powerUpToSpawn = Random.value < 0.5f ? whitePowerUpPrefab : blackPowerUpPrefab;
+                Instantiate(powerUpToSpawn, newPlatform.transform.position + Vector3.up, Quaternion.identity);
+
+                Debug.Log(powerUpToSpawn == whitePowerUpPrefab ? "Spawned White Power-Up" : "Spawned Black Power-Up");
             }
         }
     }
 }
+
