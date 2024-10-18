@@ -58,6 +58,9 @@ public class PlayerController : MonoBehaviour
 
     public GameObject mergeEffectPrefab; 
 
+    private Vector3 platformLastPosition;
+    private bool isOnRotatingPlatform = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -137,6 +140,13 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Game Over! Player missed the next Platform.");
             fallCheckTimer = 0f;
             return;
+        }
+
+        if (isOnRotatingPlatform && currentPlatform != null)
+        {
+            Vector3 platformMovement = currentPlatform.transform.position - platformLastPosition;
+            transform.position += platformMovement;  // Move the player along with the platform's movement
+            platformLastPosition = currentPlatform.transform.position;  // Update platform's last position
         }
 
         ShadowControl();
@@ -273,6 +283,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = collision.gameObject;
+            platformLastPosition = currentPlatform.transform.position;
             Color platformColor = collision.gameObject.GetComponent<Renderer>().material.color;
 
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
@@ -283,7 +294,11 @@ public class PlayerController : MonoBehaviour
             else
             {
                 
-                transform.SetParent(collision.transform);
+                isOnRotatingPlatform = currentPlatform.GetComponent<PlatformMover>() != null;
+                if (!isOnRotatingPlatform)
+                {
+                    transform.SetParent(collision.transform);  // Only parent if the platform is not rotating
+                }
 
                 // Score logic
                 if (scoreManager != null)
@@ -338,8 +353,8 @@ private void OnCollisionExit2D(Collision2D collision)
         if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = null;
-            
-            transform.SetParent(null);
+            isOnRotatingPlatform = false;  // Reset when the player exits the platform
+            transform.SetParent(null);  // Remove any parenting when the player exits the platform
         }
     }
 
