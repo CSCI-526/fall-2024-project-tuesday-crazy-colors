@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 public class PlayerController : MonoBehaviour
 {
+    private Collider2D shadowCollider;
     private GameObject lastPlatform;  // Field to store the last platform
     public float moveSpeed;
     public float jumpForce;
@@ -67,6 +68,10 @@ public class PlayerController : MonoBehaviour
         playerCollider = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.color = colorOrder[currentColorIndex];
+        if (shadow != null)
+        {
+            shadowCollider = shadow.GetComponent<Collider2D>();
+        }
         if (endGameUI != null)
         {
             endGameUI.SetActive(false);
@@ -161,45 +166,65 @@ public class PlayerController : MonoBehaviour
         ShadowControl();
     }
 
-    public void ActivateShadowImmunity(float duration)
+public void ActivateShadowImmunity(float duration)
+{
+    if (!shadowImmunityActive)
     {
-        if (!shadowImmunityActive)
-        {
-            shadowImmunityActive = true;
-            isShadowImmune = true; // Set immunity to true
-            
-            // Make shadow invisible
-            if (shadow != null)
-            {
-                shadow.SetActive(false);
-            }
-
-            StartCoroutine(ShadowImmunityCoroutine(duration));
-        }
-    }
-
-    private IEnumerator ShadowImmunityCoroutine(float duration)
-    {
-        float remainingTime = duration;
-
-        while (remainingTime > 0)
-        {
-            // Update the countdown timer text
-            shadowImmunityTimerText.text = "Shadow Invincible for " + remainingTime.ToString("F1") + " secs"; // Display as integer
-            yield return new WaitForSeconds(0.1f);  // 0.1 second delay
-            remainingTime -= 0.1f;
-        }
-
-        // Restore shadow visibility after immunity expires
+        shadowImmunityActive = true;
+        isShadowImmune = true; 
+        
         if (shadow != null)
         {
-            shadow.SetActive(true);
+            SpriteRenderer shadowSpriteRenderer = shadow.GetComponent<SpriteRenderer>();
+            if (shadowSpriteRenderer != null)
+            {
+                Color shadowColor = shadowSpriteRenderer.color;
+                shadowColor.a = 0.5f; 
+                shadowSpriteRenderer.color = shadowColor; 
+            }
+
+            if (shadowCollider != null)
+            {
+                shadowCollider.enabled = false; 
+            }
         }
 
-        isShadowImmune = false;
-        shadowImmunityActive = false; // Reset immunity state
-        shadowImmunityTimerText.text = ""; // Clear the timer text
+        StartCoroutine(ShadowImmunityCoroutine(duration));
     }
+}
+
+private IEnumerator ShadowImmunityCoroutine(float duration)
+{
+    float remainingTime = duration;
+
+    while (remainingTime > 0)
+    {
+        shadowImmunityTimerText.text = "Shadow Invincible for " + remainingTime.ToString("F1") + " secs"; 
+        yield return new WaitForSeconds(0.1f);  
+        remainingTime -= 0.1f;
+    }
+
+    if (shadow != null)
+    {
+        SpriteRenderer shadowSpriteRenderer = shadow.GetComponent<SpriteRenderer>();
+        if (shadowSpriteRenderer != null)
+        {
+            Color shadowColor = shadowSpriteRenderer.color;
+            shadowColor.a = 1f; 
+            shadowSpriteRenderer.color = shadowColor;
+        }
+
+        if (shadowCollider != null)
+        {
+            shadowCollider.enabled = true;
+        }
+    }
+
+    isShadowImmune = false;
+    shadowImmunityActive = false; // Reset immunity state
+    shadowImmunityTimerText.text = ""; // Clear the timer text
+}
+
 
     public void TemporaryPowerUpEffect(float duration)
     {
