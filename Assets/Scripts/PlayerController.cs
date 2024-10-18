@@ -1,5 +1,3 @@
-
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +7,8 @@ using System.Threading.Tasks;
 
 public class PlayerController : MonoBehaviour
 {
+    private Collider2D shadowCollider;
+    private GameObject lastPlatform;  // Field to store the last platform
     public float moveSpeed;
     public float jumpForce;
     private Rigidbody2D playerRigidbody;
@@ -68,6 +68,10 @@ public class PlayerController : MonoBehaviour
         playerCollider = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.color = colorOrder[currentColorIndex];
+        if (shadow != null)
+        {
+            shadowCollider = shadow.GetComponent<Collider2D>();
+        }
         if (endGameUI != null)
         {
             endGameUI.SetActive(false);
@@ -82,7 +86,17 @@ public class PlayerController : MonoBehaviour
 
         // tk 
         delayFrames = Mathf.RoundToInt(shadowDelay / Time.deltaTime);
-    }
+
+        // Change the color of the shadow to grey
+        if (shadow != null)
+        {
+            SpriteRenderer shadowSpriteRenderer = shadow.GetComponent<SpriteRenderer>();
+            if (shadowSpriteRenderer != null)
+            {
+                shadowSpriteRenderer.color = Color.grey;
+            }
+        }
+    } 
 
     // Update is called once per frame
     void Update()
@@ -152,32 +166,65 @@ public class PlayerController : MonoBehaviour
         ShadowControl();
     }
 
-    public void ActivateShadowImmunity(float duration)
+public void ActivateShadowImmunity(float duration)
+{
+    if (!shadowImmunityActive)
     {
-        if (!shadowImmunityActive)
+        shadowImmunityActive = true;
+        isShadowImmune = true; 
+        
+        if (shadow != null)
         {
-            shadowImmunityActive = true;
-            isShadowImmune = true; // Set immunity to true
-            StartCoroutine(ShadowImmunityCoroutine(duration));
+            SpriteRenderer shadowSpriteRenderer = shadow.GetComponent<SpriteRenderer>();
+            if (shadowSpriteRenderer != null)
+            {
+                Color shadowColor = shadowSpriteRenderer.color;
+                shadowColor.a = 0.5f; 
+                shadowSpriteRenderer.color = shadowColor; 
+            }
+
+            if (shadowCollider != null)
+            {
+                shadowCollider.enabled = false; 
+            }
+        }
+
+        StartCoroutine(ShadowImmunityCoroutine(duration));
+    }
+}
+
+private IEnumerator ShadowImmunityCoroutine(float duration)
+{
+    float remainingTime = duration;
+
+    while (remainingTime > 0)
+    {
+        shadowImmunityTimerText.text = "Shadow Invincible for " + remainingTime.ToString("F1") + " secs"; 
+        yield return new WaitForSeconds(0.1f);  
+        remainingTime -= 0.1f;
+    }
+
+    if (shadow != null)
+    {
+        SpriteRenderer shadowSpriteRenderer = shadow.GetComponent<SpriteRenderer>();
+        if (shadowSpriteRenderer != null)
+        {
+            Color shadowColor = shadowSpriteRenderer.color;
+            shadowColor.a = 1f; 
+            shadowSpriteRenderer.color = shadowColor;
+        }
+
+        if (shadowCollider != null)
+        {
+            shadowCollider.enabled = true;
         }
     }
 
-    private IEnumerator ShadowImmunityCoroutine(float duration)
-    {
-        float remainingTime = duration;
+    isShadowImmune = false;
+    shadowImmunityActive = false; // Reset immunity state
+    shadowImmunityTimerText.text = ""; // Clear the timer text
+}
 
-        while (remainingTime > 0)
-        {
-            // Update the countdown timer text
-            shadowImmunityTimerText.text = "Shadow Invincible for " +remainingTime.ToString("F1") + " secs"; // Display as integer
-            yield return new WaitForSeconds(1f); // Wait for 1 second
-            remainingTime--;
-        }
-
-        isShadowImmune = false;
-        shadowImmunityActive = false; // Reset immunity state
-        shadowImmunityTimerText.text = ""; // Clear the timer text
-    }
 
     public void TemporaryPowerUpEffect(float duration)
     {
@@ -280,7 +327,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Platform"))
+if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = collision.gameObject;
             platformLastPosition = currentPlatform.transform.position;
@@ -293,7 +340,6 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                
                 isOnRotatingPlatform = currentPlatform.GetComponent<PlatformMover>() != null;
                 if (!isOnRotatingPlatform)
                 {
@@ -301,10 +347,11 @@ public class PlayerController : MonoBehaviour
                 }
 
                 // Score logic
-                if (scoreManager != null)
+                if (scoreManager != null && currentPlatform != lastPlatform)
                 {
                     scoreManager.score++;
                     scoreManager.UpdateScoreText();
+                    lastPlatform = currentPlatform;  // Update lastPlatform to the current one
                 }
             }
         }
@@ -325,30 +372,27 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-public void AbsorbShadow()
-{
-    if (shadow != null)
+    public void AbsorbShadow()
     {
-       
-        if (isShadowImmune)
+        if (shadow != null)
         {
-            Debug.Log("Cannot absorb shadow while black power-up is active.");
-            return; 
+            if (isShadowImmune)
+            {
+                Debug.Log("Cannot absorb shadow while black power-up is active.");
+                return; 
+            }
+
+            Vector3 mergePosition = shadow.transform.position;
+            Instantiate(mergeEffectPrefab, mergePosition, Quaternion.identity);
+
+            shadow.transform.position = transform.position;
+            shadow.SetActive(false);
+
+            Debug.Log("Shadow absorbed by player!");
         }
-
-       
-        Vector3 mergePosition = shadow.transform.position;
-        Instantiate(mergeEffectPrefab, mergePosition, Quaternion.identity);
-
-       
-        shadow.transform.position = transform.position;
-        shadow.SetActive(false);
-
-        Debug.Log("Shadow absorbed by player!");
     }
-}
 
-private void OnCollisionExit2D(Collision2D collision)
+    private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Platform"))
         {
@@ -358,7 +402,7 @@ private void OnCollisionExit2D(Collision2D collision)
         }
     }
 
-        public void RetryGame()
+    public void RetryGame()
     {
         SendToGoogle googleInstance = SendToGoogle.Instance; 
         if (googleInstance != null)

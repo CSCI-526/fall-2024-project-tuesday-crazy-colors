@@ -5,33 +5,36 @@ using UnityEngine;
 public class PlatformMover : MonoBehaviour
 {
     private float moveSpeed;
+    private float horizontalMoveSpeed;
     private float initialYPosition;
-    public float movementRange = 2.0f; //Height
+    private float initialXPosition;
+    private Vector3 initialScale;
+    public float movementRange = 2.0f; // Height
+    public float horizontalMovementRange = 2.0f; // Width
 
     public float rotationSpeed = 20.0f; // Rotation speed for rotating platforms
+    public float shrinkGrowSpeed = 2.0f; // Speed for shrinking and growing
 
-    private enum PlatformBehavior { MoveVertically, Rotate, BreakOnCollision }
+    private enum PlatformBehavior { MoveVertically, Rotate, MoveHorizontally, ShrinkAndGrowHorizontally }
     private PlatformBehavior platformBehavior;
-
-    private bool isBroken = false;
 
     void Start()
     {
         moveSpeed = Random.Range(0f, 5f);
+        horizontalMoveSpeed = Random.Range(0f, 5f);
 
-        // Randomly choose a platform behavior: Move Vertically, Rotate, or Break On Collision
-        int randomBehavior = Random.Range(0, 3);  // 0 for MoveVertically, 1 for Rotate, 2 for BreakOnCollision
+        // Randomly choose a platform behavior: Move Vertically, Rotate, Move Horizontally, or Shrink and Grow Horizontally
+        int randomBehavior = Random.Range(0, 4);  // 0 for MoveVertically, 1 for Rotate, 2 for MoveHorizontally, 3 for ShrinkAndGrowHorizontally
         platformBehavior = (PlatformBehavior)randomBehavior;
 
-        // Store the initial Y position for vertical movement
+        // Store the initial positions and scale for movement
         initialYPosition = transform.position.y;
+        initialXPosition = transform.position.x;
+        initialScale = transform.localScale;
     }
 
     void Update()
     {
-       // If the platform is broken, do nothing
-        if (isBroken) return;
-
         // Determine platform behavior
         if (platformBehavior == PlatformBehavior.MoveVertically)
         {
@@ -44,29 +47,17 @@ public class PlatformMover : MonoBehaviour
             // Rotate the platform slowly around the Z axis
             transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);
         }
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (platformBehavior == PlatformBehavior.BreakOnCollision && collision.gameObject.CompareTag("Player"))
+        else if (platformBehavior == PlatformBehavior.MoveHorizontally)
         {
-            Debug.Log("Collision detected with Player. Breaking the platform.");
-            StartCoroutine(BreakPlatform());
+            // Move the platform left and right
+            float newX = initialXPosition + Mathf.Sin(Time.time * horizontalMoveSpeed) * horizontalMovementRange;
+            transform.position = new Vector3(newX, transform.position.y, transform.position.z);
         }
-    }
-
-    // Coroutine to break the platform
-    IEnumerator BreakPlatform()
-    {
-        // Optional: Add some visual effect or delay before breaking
-        yield return new WaitForSeconds(0.2f); // Delay before breaking (optional)
-
-        // Disable the platform
-        isBroken = true;
-        // gameObject.SetActive(false); // Deactivate platform (or you can destroy it)
-        Destroy(gameObject);
-
-        // Optionally, you can trigger any break effect or particle system here
-        Debug.Log("Platform broke on collision!");
+        else if (platformBehavior == PlatformBehavior.ShrinkAndGrowHorizontally)
+        {
+            // Shrink and grow the platform horizontally
+            float scaleX = initialScale.x + Mathf.Sin(Time.time * shrinkGrowSpeed) * (initialScale.x - 2.0f) / 2.0f;
+            transform.localScale = new Vector3(Mathf.Clamp(scaleX, 2.0f, initialScale.x), initialScale.y, initialScale.z);
+        }
     }
 }
