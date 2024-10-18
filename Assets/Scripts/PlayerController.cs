@@ -186,8 +186,8 @@ public class PlayerController : MonoBehaviour
         {
             // Update the countdown timer text
             shadowImmunityTimerText.text = "Shadow Invincible for " + remainingTime.ToString("F1") + " secs"; // Display as integer
-            yield return new WaitForSeconds(1f); // Wait for 1 second
-            remainingTime--;
+            yield return new WaitForSeconds(0.1f);  // 0.1 second delay
+            remainingTime -= 0.1f;
         }
 
         // Restore shadow visibility after immunity expires
