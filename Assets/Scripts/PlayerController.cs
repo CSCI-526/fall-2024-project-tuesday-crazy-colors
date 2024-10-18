@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 public class PlayerController : MonoBehaviour
 {
+    private GameObject lastPlatform;  // Field to store the last platform
     public float moveSpeed;
     public float jumpForce;
     private Rigidbody2D playerRigidbody;
@@ -301,7 +302,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Platform"))
+if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = collision.gameObject;
             platformLastPosition = currentPlatform.transform.position;
@@ -314,7 +315,6 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                
                 isOnRotatingPlatform = currentPlatform.GetComponent<PlatformMover>() != null;
                 if (!isOnRotatingPlatform)
                 {
@@ -322,10 +322,11 @@ public class PlayerController : MonoBehaviour
                 }
 
                 // Score logic
-                if (scoreManager != null)
+                if (scoreManager != null && currentPlatform != lastPlatform)
                 {
                     scoreManager.score++;
                     scoreManager.UpdateScoreText();
+                    lastPlatform = currentPlatform;  // Update lastPlatform to the current one
                 }
             }
         }
