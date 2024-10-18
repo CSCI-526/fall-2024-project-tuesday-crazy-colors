@@ -153,31 +153,45 @@ public class PlayerController : MonoBehaviour
     }
 
     public void ActivateShadowImmunity(float duration)
+{
+    if (!shadowImmunityActive)
     {
-        if (!shadowImmunityActive)
+        shadowImmunityActive = true;
+        isShadowImmune = true; // Set immunity to true
+        
+        // Make shadow invisible
+        if (shadow != null)
         {
-            shadowImmunityActive = true;
-            isShadowImmune = true; // Set immunity to true
-            StartCoroutine(ShadowImmunityCoroutine(duration));
-        }
-    }
-
-    private IEnumerator ShadowImmunityCoroutine(float duration)
-    {
-        float remainingTime = duration;
-
-        while (remainingTime > 0)
-        {
-            // Update the countdown timer text
-            shadowImmunityTimerText.text = "Shadow Invincible for " +remainingTime.ToString("F1") + " secs"; // Display as integer
-            yield return new WaitForSeconds(1f); // Wait for 1 second
-            remainingTime--;
+            shadow.SetActive(false);
         }
 
-        isShadowImmune = false;
-        shadowImmunityActive = false; // Reset immunity state
-        shadowImmunityTimerText.text = ""; // Clear the timer text
+        StartCoroutine(ShadowImmunityCoroutine(duration));
     }
+}
+
+private IEnumerator ShadowImmunityCoroutine(float duration)
+{
+    float remainingTime = duration;
+
+    while (remainingTime > 0)
+    {
+        // Update the countdown timer text
+        shadowImmunityTimerText.text = "Shadow Invincible for " + remainingTime.ToString("F1") + " secs"; // Display as integer
+        yield return new WaitForSeconds(1f); // Wait for 1 second
+        remainingTime--;
+    }
+
+    // Restore shadow visibility after immunity expires
+    if (shadow != null)
+    {
+        shadow.SetActive(true);
+    }
+
+    isShadowImmune = false;
+    shadowImmunityActive = false; // Reset immunity state
+    shadowImmunityTimerText.text = ""; // Clear the timer text
+}
+
 
     public void TemporaryPowerUpEffect(float duration)
     {
