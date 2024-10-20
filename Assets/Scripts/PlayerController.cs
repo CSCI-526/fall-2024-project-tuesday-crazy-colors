@@ -61,6 +61,10 @@ public class PlayerController : MonoBehaviour
     private Vector3 platformLastPosition;
     private bool isOnRotatingPlatform = false;
 
+    // coins
+    public int coins = 0;
+    public Text coinText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -96,6 +100,10 @@ public class PlayerController : MonoBehaviour
                 shadowSpriteRenderer.color = Color.grey;
             }
         }
+
+        // coins 
+        coins = PlayerPrefs.GetInt("coins", 0);
+        UpdateCoinText();
     } 
 
     // Update is called once per frame
@@ -136,14 +144,19 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded)
-        {
-            playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             ChangeColorAscending();
+        }
+
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            ChangeColorDescending();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
         }
 
         fallCheckTimer += Time.deltaTime;
@@ -266,6 +279,9 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
     // Override EndGame temporarily for invincibility
     void EndGame()
     {
+        shadowImmunityTimerText.gameObject.SetActive(false);
+        powerUpTimerText.gameObject.SetActive(false);
+
         if (endGameUI != null)
         {
             endGameUI.SetActive(true);
@@ -313,6 +329,25 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
     void ChangeColorAscending()
     {
         currentColorIndex = (currentColorIndex + 1) % colorOrder.Length;
+
+        Color newColor = colorOrder[currentColorIndex];
+
+        // If power-up is active, maintain reduced opacity when changing color
+        if (powerUpActive)
+        {
+            newColor.a = 0.5f; // Maintain semi-transparency
+        }
+
+        spriteRenderer.color = newColor; // Apply color change
+    }
+
+    void ChangeColorDescending()
+    {
+        currentColorIndex = (currentColorIndex - 1);
+        if (currentColorIndex < 0)
+        {
+            currentColorIndex = colorOrder.Length - 1;
+        }
 
         Color newColor = colorOrder[currentColorIndex];
 
@@ -420,5 +455,21 @@ if (collision.gameObject.CompareTag("Platform"))
         gameStarted = true;
         playerRigidbody.simulated = true;
         startGameUI.SetActive(false);
+    }
+    
+    public void CollectCoin()
+    {
+        coins++;
+        UpdateCoinText();
+        Debug.Log("Coins collected: " + coins);
+        PlayerPrefs.SetInt("coins", coins);
+    }
+
+    private void UpdateCoinText()
+    {
+        if (coinText != null)
+        {
+            coinText.text = "Coins: $" + coins;
+        }
     }
 }

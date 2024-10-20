@@ -17,6 +17,9 @@ public class PlatformGenerator : MonoBehaviour
     public int powerUpInterval; 
     private int platformCount = 0;
 
+    // Coin
+    public GameObject coinPrefab;
+
     
     public Color[] platformColors;
 
@@ -59,7 +62,7 @@ public class PlatformGenerator : MonoBehaviour
 
             // Power-up spawning logic
             platformCount++;
-            if (platformCount >= powerUpInterval)
+            if (PlayerPrefs.GetInt("coins", 0) > 50 && platformCount >= powerUpInterval)
             {
                 platformCount = 0; 
 
@@ -68,7 +71,12 @@ public class PlatformGenerator : MonoBehaviour
                 Instantiate(powerUpToSpawn, newPlatform.transform.position + Vector3.up, Quaternion.identity);
 
                 Debug.Log(powerUpToSpawn == whitePowerUpPrefab ? "Spawned White Power-Up" : "Spawned Black Power-Up");
+            } else
+            {
+                // Coin spawning logic
+                Instantiate(coinPrefab, newPlatform.transform.position + Vector3.up * 1.5f, Quaternion.identity);
             }
+
         }
     }
 }
