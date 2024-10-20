@@ -61,6 +61,10 @@ public class PlayerController : MonoBehaviour
     private Vector3 platformLastPosition;
     private bool isOnRotatingPlatform = false;
 
+    // coins
+    public int coins = 0;
+    public Text coinText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -96,6 +100,10 @@ public class PlayerController : MonoBehaviour
                 shadowSpriteRenderer.color = Color.grey;
             }
         }
+
+        // coins 
+        coins = PlayerPrefs.GetInt("coins", 0);
+        UpdateCoinText();
     } 
 
     // Update is called once per frame
@@ -420,5 +428,21 @@ if (collision.gameObject.CompareTag("Platform"))
         gameStarted = true;
         playerRigidbody.simulated = true;
         startGameUI.SetActive(false);
+    }
+    
+    public void CollectCoin()
+    {
+        coins++;
+        UpdateCoinText();
+        Debug.Log("Coins collected: " + coins);
+        PlayerPrefs.SetInt("coins", coins);
+    }
+
+    private void UpdateCoinText()
+    {
+        if (coinText != null)
+        {
+            coinText.text = "Coins: $" + coins;
+        }
     }
 }
