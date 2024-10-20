@@ -62,7 +62,7 @@ public class PlatformGenerator : MonoBehaviour
 
             // Power-up spawning logic
             platformCount++;
-            if (platformCount >= powerUpInterval)
+            if (PlayerPrefs.GetInt("coins", 0) > 50 && platformCount >= powerUpInterval)
             {
                 platformCount = 0; 
 
