@@ -144,14 +144,19 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded)
-        {
-            playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             ChangeColorAscending();
+        }
+
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            ChangeColorDescending();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
         }
 
         fallCheckTimer += Time.deltaTime;
@@ -324,6 +329,25 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
     void ChangeColorAscending()
     {
         currentColorIndex = (currentColorIndex + 1) % colorOrder.Length;
+
+        Color newColor = colorOrder[currentColorIndex];
+
+        // If power-up is active, maintain reduced opacity when changing color
+        if (powerUpActive)
+        {
+            newColor.a = 0.5f; // Maintain semi-transparency
+        }
+
+        spriteRenderer.color = newColor; // Apply color change
+    }
+
+    void ChangeColorDescending()
+    {
+        currentColorIndex = (currentColorIndex - 1);
+        if (currentColorIndex < 0)
+        {
+            currentColorIndex = colorOrder.Length - 1;
+        }
 
         Color newColor = colorOrder[currentColorIndex];
 

@@ -12,7 +12,7 @@ public class PlatformMover : MonoBehaviour
     public float movementRange = 2.0f; // Height
     public float horizontalMovementRange = 2.0f; // Width
 
-    public float rotationSpeed = 20.0f; // Rotation speed for rotating platforms
+    public float rotationSpeed = 30.0f; // Rotation speed for rotating platforms
     public float shrinkGrowSpeed = 2.0f; // Speed for shrinking and growing
 
     private enum PlatformBehavior { MoveVertically, Rotate, MoveHorizontally, ShrinkAndGrowHorizontally }
