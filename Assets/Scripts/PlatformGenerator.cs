@@ -67,14 +67,14 @@ public class PlatformGenerator : MonoBehaviour
                 // Display the text for white power-up only if it's the first occurrence
                 if (powerUpToSpawn == whitePowerUpPrefab && !whitePowerUpShown)
                 {
-                    powerUpLabel.text = "White Power-Up Ahead! Land freely without color change!";
+                    powerUpLabel.text = "White Power-Up Ahead!\nLand freely without changing color!";
                     whitePowerUpShown = true; // Mark as shown
                     StartCoroutine(ResetLabel());
                 }
                 // Display the text for black power-up only if it's the first occurrence
                 else if (powerUpToSpawn == blackPowerUpPrefab && !blackPowerUpShown)
                 {
-                    powerUpLabel.text = "Black Power-Up Ahead! Get protection from the shadow's grasp!";
+                    powerUpLabel.text = "Black Power-Up Ahead!\nGet protection from the shadow's grasp!";
                     blackPowerUpShown = true; // Mark as shown
                     StartCoroutine(ResetLabel());
                 }
