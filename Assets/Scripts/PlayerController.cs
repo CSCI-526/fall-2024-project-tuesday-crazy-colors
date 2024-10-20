@@ -274,6 +274,9 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
     // Override EndGame temporarily for invincibility
     void EndGame()
     {
+        shadowImmunityTimerText.gameObject.SetActive(false);
+        powerUpTimerText.gameObject.SetActive(false);
+
         if (endGameUI != null)
         {
             endGameUI.SetActive(true);
