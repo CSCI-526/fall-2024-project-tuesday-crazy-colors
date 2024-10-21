@@ -65,6 +65,12 @@ public class PlayerController : MonoBehaviour
     public int coins = 0;
     public Text coinText;
 
+    // //lives
+    // public int lives = 3;
+    // public Text livesText;
+    // private Vector3 startPosition;
+    // private Vector3 respawnPosition;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -104,7 +110,22 @@ public class PlayerController : MonoBehaviour
         // coins 
         coins = PlayerPrefs.GetInt("coins", 0);
         UpdateCoinText();
+
+        // //lives
+        // startPosition = transform.position;
+        // respawnPosition = startPosition;
+        // UpdateLivesText();
+        
+        
     } 
+
+    // void UpdateLivesText()
+    // {
+    //     if (livesText != null)
+    //     {
+    //         livesText.text = "Lives: " + lives;
+    //     }
+    // }
 
     // Update is called once per frame
     void Update()
@@ -139,6 +160,7 @@ public class PlayerController : MonoBehaviour
             Color platformColor = currentPlatform.GetComponent<Renderer>().material.color;
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
+                // EndGame("fall");
                 EndGame();
                 return;
             }
@@ -163,6 +185,7 @@ public class PlayerController : MonoBehaviour
 
         if (transform.position.y < fallThreshold && fallCheckTimer > fallCheckDelay)
         {
+            // EndGame("fall");
             EndGame();
             Debug.Log("Game Over! Player missed the next Platform.");
             fallCheckTimer = 0f;
@@ -177,6 +200,11 @@ public class PlayerController : MonoBehaviour
         }
 
         ShadowControl();
+
+        // if (isGrounded)
+        // {
+        //     respawnPosition = transform.position;
+        // }
     }
 
 public void ActivateShadowImmunity(float duration)
@@ -277,8 +305,36 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
     }
 
     // Override EndGame temporarily for invincibility
+    // void EndGame(string deathReason)
     void EndGame()
     {
+        // lives--;
+        // UpdateLivesText();
+
+        // if (lives > 0)
+        // {
+        //     switch (deathReason)
+        //     {
+        //         case "fall":
+        //             respawnPosition = transform.position;
+        //             respawnPosition.y = fallThreshold + 5f; // Adjust this value as needed
+        //             break;
+        //         case "shadow":
+        //         case "color":
+        //             respawnPosition = currentPlatform.transform.position;
+        //             respawnPosition.y += 1f; // Adjust this value to spawn slightly above the platform
+        //             break;
+        //     }
+
+        //     if (deathReason == "color" || deathReason == "shadow")
+        //     {
+        //         spriteRenderer.color = currentPlatform.GetComponent<Renderer>().material.color;
+        //     }
+
+        //     ResetPlayerPosition(respawnPosition);
+        //     return;
+        // }
+
         shadowImmunityTimerText.gameObject.SetActive(false);
         powerUpTimerText.gameObject.SetActive(false);
 
@@ -320,6 +376,33 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
             }
         }
     }
+
+    // void ResetPlayerPosition(Vector3 resetPosition)
+    // {
+    //     transform.position = resetPosition;
+    //     playerRigidbody.velocity = Vector2.zero;
+    //     currentPlatform = null;
+    //     isOnRotatingPlatform = false;
+    //     transform.SetParent(null);
+
+    //     if (shadow != null)
+    //     {
+    //         shadow.transform.position = resetPosition;
+    //         recordedPositions.Clear();
+    //         shadowStarted = false;
+    //         shadowStartTimer = 0f;
+    //         shadow.SetActive(false);
+    //     }
+
+    //     StopAllCoroutines();
+    //     canJumpOnAnyPlatform = false;
+    //     isShadowImmune = false;
+    //     powerUpActive = false;
+    //     shadowImmunityActive = false;
+    //     SetPlayerOpacity(1f);
+    //     powerUpTimerText.text = "";
+    //     shadowImmunityTimerText.text = "";
+    // }
 
     private void ShadowControl()
     {
@@ -374,6 +457,7 @@ if (collision.gameObject.CompareTag("Platform"))
 
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
+                // EndGame("color");
                 EndGame();
                 Debug.Log("Game Over! Player landed on a different color platform.");
             }
@@ -400,6 +484,7 @@ if (collision.gameObject.CompareTag("Platform"))
         {
             if (!isShadowImmune)
             {
+                // EndGame("shadow");
                 EndGame(); 
                 Debug.Log("Game Over! Shadow collided with the player.");
             }
@@ -451,6 +536,28 @@ if (collision.gameObject.CompareTag("Platform"))
 
         dataSent = false; 
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+        // if (lives <= 0)
+        // {
+        //     // Reset everything for a new game
+        //     lives = 3;
+        //     coins = 0;
+        //     PlayerPrefs.SetInt("coins", coins);
+        //     UpdateCoinText();
+        //     scoreManager.ResetScore();
+        //     ResetPlayerPosition(startPosition);
+        // }
+        // else
+        // {
+        //     // Continue from current position if lives remain
+        //     ResetPlayerPosition(respawnPosition);
+        // }
+
+        // UpdateLivesText();
+        // endGameUI.SetActive(false);
+        // spriteRenderer.enabled = true;
+        // playerRigidbody.simulated = true;
+        // playerCollider.enabled = true;
     }
 
     // Trigger the game start
