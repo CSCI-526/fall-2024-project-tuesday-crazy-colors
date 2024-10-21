@@ -37,4 +37,10 @@ public class ScoreManager : MonoBehaviour
         score = 0; 
         UpdateScoreText(); // Update the displayed score
     }
+
+    // public void ResetScore()
+    // {
+    //     score = 0;
+    //     UpdateScoreText();
+    // }
 }
