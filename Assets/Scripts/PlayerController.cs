@@ -301,6 +301,10 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
             scoreManager.SaveScore();
         }
 
+        coins = 0;
+        PlayerPrefs.SetInt("coins", coins);
+        UpdateCoinText();
+
         if (!dataSent)
         {
             dataSent = true;
