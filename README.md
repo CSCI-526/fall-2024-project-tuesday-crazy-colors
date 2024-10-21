@@ -9,7 +9,7 @@ Logline: Crazy Colors is an endless runner game where you have to jump between p
 2. Open it in cmd line
 3. git init
 4. git branch -m master main
-5. git remote add origin https://github.com/CSCI-526/fall-2024-project-tuesday-crazy-colors.git
+5. git remote add origin [https://github.com/CSCI-526/fall-2024-project-tuesday-crazy-colors.git](https://github.com/CSCI-526/fall-2024-project-tuesday-crazy-colors.git)
 6. git pull origin main
 7. git branch --set-upstream-to origin/main
 
