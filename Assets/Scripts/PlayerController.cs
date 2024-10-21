@@ -281,6 +281,7 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
     isShadowImmune = false;
     shadowImmunityActive = false; // Reset immunity state
     shadowImmunityTimerText.text = ""; // Clear the timer text
+    shadowImmunityTimerText.color = Color.white;
 }
 
 
