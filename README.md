@@ -31,6 +31,6 @@ The game involves a player that can endlessly move ahead/behind over vertically 
 
 ## Controls:
 - Movement: A/left arrow key for left movement, D/right arrow key for right movement
-- Jump: W/top arrow key
-- Player Color Switch: Space
+- Jump: Space
+- Player Color Switch: W/top arrow key
 - Color Sequence: Red -> Green -> Yellow
