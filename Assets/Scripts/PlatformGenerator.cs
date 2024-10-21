@@ -58,7 +58,7 @@ public class PlatformGenerator : MonoBehaviour
             newPlatform.AddComponent<PlatformMover>();
 
             platformCount++;
-            if (PlayerPrefs.GetInt("coins", 0) > 50 && platformCount >= powerUpInterval)
+            if (PlayerPrefs.GetInt("coins", 0) > 20 && platformCount >= powerUpInterval)
             {
                 platformCount = 0; 
                 GameObject powerUpToSpawn = Random.value < 0.5f ? whitePowerUpPrefab : blackPowerUpPrefab;
