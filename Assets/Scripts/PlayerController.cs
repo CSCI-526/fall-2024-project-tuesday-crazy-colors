@@ -237,10 +237,27 @@ public void ActivateShadowImmunity(float duration)
 private IEnumerator ShadowImmunityCoroutine(float duration)
 {
     float remainingTime = duration;
+    bool isBlinking = false;
 
     while (remainingTime > 0)
     {
         shadowImmunityTimerText.text = "Shadow Invincible for " + remainingTime.ToString("F1") + " secs"; 
+
+        if (remainingTime <= 3f && !isBlinking)
+        {
+            isBlinking = true;
+        }
+
+        // If blinking, alternate between red and white
+        if (isBlinking)
+        {
+            shadowImmunityTimerText.color = (Mathf.FloorToInt(remainingTime * 10) % 2 == 0) ? Color.red : Color.white;
+        }
+        else
+        {
+            shadowImmunityTimerText.color = Color.white; // Normal color
+        }
+
         yield return new WaitForSeconds(0.1f);  
         remainingTime -= 0.1f;
     }
@@ -280,12 +297,29 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
         canJumpOnAnyPlatform = true;
 
         float remainingTime = duration;
+        bool isBlinking = false;
 
         while (remainingTime > 0)
         {
             powerUpTimerText.text = "Color Invincible for " + remainingTime.ToString("F1") + " secs";
 
-            yield return new WaitForSeconds(0.1f);  // 0.1 second delay
+            // Start blinking effect when there are 3 seconds left
+            if (remainingTime <= 3f && !isBlinking)
+            {
+                isBlinking = true;
+            }
+
+            // If blinking, alternate between red and white
+            if (isBlinking)
+            {
+                powerUpTimerText.color = (Mathf.FloorToInt(remainingTime * 10) % 2 == 0) ? Color.red : Color.white;
+            }
+            else
+            {
+                powerUpTimerText.color = Color.white; // Normal color
+            }
+
+            yield return new WaitForSeconds(0.1f);
             remainingTime -= 0.1f;
         }
 
@@ -295,6 +329,7 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
 
         Debug.Log("Player returned to original state after power-up.");
         powerUpTimerText.text = "";
+        powerUpTimerText.color = Color.white;
     }
 
     void SetPlayerOpacity(float opacity)
