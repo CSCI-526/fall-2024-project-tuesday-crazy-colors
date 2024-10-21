@@ -1248,7 +1248,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Power Ups will be activated after collecting 50 coins.
+  m_text: Power Ups will be activated after collecting 20 coins.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1725,8 +1725,6 @@ MonoBehaviour:
   mergeEffectPrefab: {fileID: 1584441401532526543, guid: e09234002c7d543de98407b978a06536, type: 3}
   coins: 0
   coinText: {fileID: 17409010}
-  lives: 3
-  livesText: {fileID: 1320778843}
 --- !u!1 &620164768
 GameObject:
   m_ObjectHideFlags: 0
@@ -2889,7 +2887,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1320778842
 RectTransform:
   m_ObjectHideFlags: 0
