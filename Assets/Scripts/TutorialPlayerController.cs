@@ -6,6 +6,14 @@ using UnityEngine.SceneManagement;
 public class TutorialPlayerController : MonoBehaviour
 {
     public float moveSpeed;
+
+    public float fallThreshold = -12f;
+    public float fallCheckDelay = 0.5f;
+    private float fallCheckTimer = 0f;
+
+    private Vector3 platformLastPosition;
+    private bool isOnRotatingPlatform = false;
+
     public float jumpForce;
     private Rigidbody2D playerRigidbody;
     public bool isGrounded;
@@ -57,6 +65,24 @@ public class TutorialPlayerController : MonoBehaviour
                 return;
             }
         }
+
+        fallCheckTimer += Time.deltaTime;
+
+        if (transform.position.y < fallThreshold && fallCheckTimer > fallCheckDelay)
+        {
+            // EndGame("fall");
+            RestartGame();
+            Debug.Log("Game Over! Player missed the next Platform.");
+            fallCheckTimer = 0f;
+            return;
+        }
+
+        if (isOnRotatingPlatform && currentPlatform != null)
+        {
+            Vector3 platformMovement = currentPlatform.transform.position - platformLastPosition;
+            transform.position += platformMovement;  // Move the player along with the platform's movement
+            platformLastPosition = currentPlatform.transform.position;  // Update platform's last position
+        }
     }
 
     void ChangeColorAscending()
@@ -92,6 +118,7 @@ public class TutorialPlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = collision.gameObject;
+            platformLastPosition = currentPlatform.transform.position;
             Color platformColor = collision.gameObject.GetComponent<SpriteRenderer>().color;
             Debug.Log("Platform color: " + platformColor);
             Debug.Log("Player color: " + spriteRenderer.color);
@@ -100,7 +127,18 @@ public class TutorialPlayerController : MonoBehaviour
                 RestartGame();
                 Debug.Log("Game Over! Player landed on a different color platform.");
             }
+            else
+            {
+                isOnRotatingPlatform = currentPlatform.GetComponent<PlatformMover>() != null;
+                if (!isOnRotatingPlatform)
+                {
+                    transform.SetParent(collision.transform);  // Only parent if the platform is not rotating
+                }
+            }
         }
+
+       
+
     }
 
     private void OnCollisionExit2D(Collision2D collision)
@@ -108,6 +146,7 @@ public class TutorialPlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = null;
+            isOnRotatingPlatform = false; 
             transform.SetParent(null);
         }
     }

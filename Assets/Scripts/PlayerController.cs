@@ -487,7 +487,7 @@ private IEnumerator ShadowImmunityCoroutine(float duration)
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-if (collision.gameObject.CompareTag("Platform"))
+        if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = collision.gameObject;
             platformLastPosition = currentPlatform.transform.position;
