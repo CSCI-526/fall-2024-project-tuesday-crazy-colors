@@ -5,7 +5,7 @@ public class GameManager : MonoBehaviour
 {
     public GameObject player;
     public GameObject goalObject;
-    public PlayerController PlayerController;
+//    public PlayerController PlayerController;
 
     private void Start()
     {
