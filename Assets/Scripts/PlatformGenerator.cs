@@ -5,6 +5,7 @@ using TMPro; // Make sure this is included
 
 public class PlatformGenerator : MonoBehaviour
 {
+    public bool enableCoins = false;
     public GameObject platform;
     public Transform generationPoint;
     public float distanceBetween;
@@ -81,7 +82,10 @@ public class PlatformGenerator : MonoBehaviour
             }
             else
             {
-                Instantiate(coinPrefab, newPlatform.transform.position + Vector3.up * 1.5f, Quaternion.identity);
+                if (enableCoins)
+                {
+                    Instantiate(coinPrefab, newPlatform.transform.position + Vector3.up * 1.5f, Quaternion.identity);
+                }
             }
         }
     }
