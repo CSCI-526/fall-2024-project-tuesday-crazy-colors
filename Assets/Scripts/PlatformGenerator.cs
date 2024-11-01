@@ -50,15 +50,36 @@ public class PlatformGenerator : MonoBehaviour
         {
             float verticalOffset = Random.Range(-verticalOffsetRange, verticalOffsetRange);
             transform.position = new Vector3(transform.position.x + platformWidth + distanceBetween, transform.position.y + verticalOffset, transform.position.z);
-
+            Debug.Log("Generating platform number: " + (platformCount + 1));
             GameObject newPlatform = Instantiate(platform, transform.position, transform.rotation);
             newPlatform.tag = "Platform";
 
             Renderer platformRenderer = newPlatform.GetComponent<Renderer>();
             platformRenderer.material.color = platformColors[Random.Range(0, platformColors.Length)];
-            newPlatform.AddComponent<PlatformMover>();
+            // newPlatform.AddComponent<PlatformMover>();
 
-            platformCount++;
+             PlatformMover platformMover = newPlatform.AddComponent<PlatformMover>();
+
+            // Assign behavior based on platform count
+            if (platformCount < 5)
+            {
+                platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static);
+                Debug.Log("Platform is Static.");
+            }
+            else if (platformCount < 35)
+            {
+                int randomBehavior = Random.Range(0, 4); // Randomly pick between Static, MoveVertically, and ShrinkAndGrowHorizontally & seesaw
+                platformMover.SetBehavior((PlatformMover.PlatformBehavior)randomBehavior);
+                Debug.Log("Platform behavior assigned: " + ((PlatformMover.PlatformBehavior)randomBehavior).ToString());
+            }
+            else
+            {
+                platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static); // Reset to static if needed
+                Debug.Log("Platform is Static.");
+            }
+
+            platformCount++; // Increment platform count
+
             if (PlayerPrefs.GetInt("coins", 0) > 20 && platformCount >= powerUpInterval)
             {
                 platformCount = 0; 

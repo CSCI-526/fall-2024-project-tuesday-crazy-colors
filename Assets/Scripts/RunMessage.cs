@@ -22,9 +22,9 @@ public class RunMessage : MonoBehaviour
     void ShowMessages()
     {
         runMessage.SetActive(true);
-        coinsMessage.SetActive(true);
+        // coinsMessage.SetActive(true);
         StartCoroutine(HideRunMessageAfterTime(2f));
-        StartCoroutine(HideCoinsMessageAfterTime(5f));
+        // StartCoroutine(HideCoinsMessageAfterTime(5f));
     }
 
     IEnumerator HideRunMessageAfterTime(float delay)
