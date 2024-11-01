@@ -378,10 +378,10 @@ public class PlayerController : MonoBehaviour
         shadowImmunityTimerText.gameObject.SetActive(false);
         powerUpTimerText.gameObject.SetActive(false);
 
-        // if (endGameUI != null)
-        // {
-        //     endGameUI.SetActive(true);
-        // }
+        if (endGameUI != null)
+        {
+            endGameUI.SetActive(true);
+        }
         spriteRenderer.enabled = false;
         playerRigidbody.simulated = false;
         playerCollider.enabled = false;
@@ -421,7 +421,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        SceneManager.LoadScene("Main Menu");
+        // SceneManager.LoadScene("Main Menu");
     }
 
     // void ResetPlayerPosition(Vector3 resetPosition)
