@@ -137,6 +137,11 @@ public class TutorialPlayerController : MonoBehaviour
             }
         }
 
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            RestartGame(); 
+            Debug.Log("Game Over! Enemy collided with the player.");
+        }
        
 
     }

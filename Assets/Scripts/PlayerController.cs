@@ -553,6 +553,12 @@ public class PlayerController : MonoBehaviour
                 AbsorbShadow();
             }
         }
+
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log("Game Over! Enemy collided with the player.");
+            EndGame(); 
+        }
     }
 
     public void AbsorbShadow()
