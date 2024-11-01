@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour
     private float fallCheckTimer = 0f;
 
     private GameObject currentPlatform;
+    private Vector3 initialPlayerScale;
 
     public GameObject startGameUI;
     private bool gameStarted = false;
@@ -59,7 +60,7 @@ public class PlayerController : MonoBehaviour
     public GameObject mergeEffectPrefab;
 
     private Vector3 platformLastPosition;
-    private bool isOnRotatingPlatform = false;
+    private bool isOnSeeSaw = false;
 
     // coins
     public int coins = 0;
@@ -74,6 +75,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        initialPlayerScale = transform.localScale;
         playerRigidbody = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -130,6 +132,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         if (!gameStarted)
         {
             return;
@@ -193,7 +196,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (isOnRotatingPlatform && currentPlatform != null)
+        if (isOnSeeSaw && currentPlatform != null)
         {
             Vector3 platformMovement = currentPlatform.transform.position - platformLastPosition;
             transform.position += platformMovement;  // Move the player along with the platform's movement
@@ -495,6 +498,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Platform"))
         {
+            transform.localScale = initialPlayerScale;
             currentPlatform = collision.gameObject;
             platformLastPosition = currentPlatform.transform.position;
             Color platformColor = collision.gameObject.GetComponent<Renderer>().material.color;
@@ -507,8 +511,19 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                isOnRotatingPlatform = currentPlatform.GetComponent<PlatformMover>() != null;
-                if (!isOnRotatingPlatform)
+                PlatformMover platformMover = currentPlatform.GetComponent<PlatformMover>();
+
+                // Check if the platform has a rotating behavior (SeeSaw)
+                if (platformMover != null && platformMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw)
+                {
+                    // Determine if the player landed on the left or right side of the platform
+                    bool isLandingLeft = collision.contacts[0].point.x < collision.transform.position.x;
+                    platformMover.AdjustSeeSawRotation(isLandingLeft);
+                }
+                
+
+                isOnSeeSaw = platformMover != null && platformMover.GetBehavior() != PlatformMover.PlatformBehavior.Static;
+                if (!isOnSeeSaw)
                 {
                     transform.SetParent(collision.transform);  // Only parent if the platform is not rotating
                 }
@@ -565,7 +580,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = null;
-            isOnRotatingPlatform = false;  // Reset when the player exits the platform
+            isOnSeeSaw = false;  // Reset when the player exits the platform
             transform.SetParent(null);  // Remove any parenting when the player exits the platform
         }
     }
