@@ -5,7 +5,6 @@ public class EnemySpawner : MonoBehaviour
 {
     public GameObject enemyPrefab;
     public float spawnInterval = 3f;
-    public int initialEnemiesPerSpawn = 1;
     public int maxEnemiesPerPlatform = 3;
 
     private float spawnTimer;
@@ -51,8 +50,18 @@ public class EnemySpawner : MonoBehaviour
     int CalculateEnemiesToSpawn()
     {
         int currentScore = scoreManager.score;
-        int enemiesToSpawn = initialEnemiesPerSpawn + (currentScore / 5);
-        return Mathf.Min(enemiesToSpawn, maxEnemiesPerPlatform);
+        if (currentScore >= 20)
+        {
+            return 3;
+        }
+        else if (currentScore >= 10)
+        {
+            return 2;
+        }
+        else
+        {
+            return 1;
+        }
     }
 
     void SpawnEnemyOnPlatform(GameObject platform)

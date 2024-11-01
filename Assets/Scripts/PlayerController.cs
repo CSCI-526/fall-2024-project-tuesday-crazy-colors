@@ -505,6 +505,7 @@ public class PlayerController : MonoBehaviour
 
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
+                // EndGame("color");
                 EndGame();
                 Debug.Log("Game Over! Player landed on a different color platform.");
             }
@@ -519,9 +520,13 @@ public class PlayerController : MonoBehaviour
                     bool isLandingLeft = collision.contacts[0].point.x < collision.transform.position.x;
                     platformMover.AdjustSeeSawRotation(isLandingLeft);
                 }
+                
 
                 isOnSeeSaw = platformMover != null && platformMover.GetBehavior() != PlatformMover.PlatformBehavior.Static;
-                transform.SetParent(collision.transform);  // Parent to the platform regardless of its behavior
+                if (!isOnSeeSaw)
+                {
+                    transform.SetParent(collision.transform);  // Only parent if the platform is not rotating
+                }
 
                 // Score logic
                 if (scoreManager != null && currentPlatform != lastPlatform)
@@ -538,6 +543,7 @@ public class PlayerController : MonoBehaviour
         {
             if (!isShadowImmune)
             {
+                // EndGame("shadow");
                 EndGame();
                 Debug.Log("Game Over! Shadow collided with the player.");
             }
@@ -552,16 +558,6 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("Game Over! Enemy collided with the player.");
             EndGame(); 
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Platform"))
-        {
-            currentPlatform = null;
-            isOnSeeSaw = false;  // Reset when the player exits the platform
-            transform.SetParent(null);  // Remove any parenting when the player exits the platform
         }
     }
 
@@ -582,6 +578,16 @@ public class PlayerController : MonoBehaviour
             shadow.SetActive(false);
 
             Debug.Log("Shadow absorbed by player!");
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            currentPlatform = null;
+            isOnSeeSaw = false;  // Reset when the player exits the platform
+            transform.SetParent(null);  // Remove any parenting when the player exits the platform
         }
     }
 
