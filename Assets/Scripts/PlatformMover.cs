@@ -7,7 +7,7 @@ public class PlatformMover : MonoBehaviour
     public enum PlatformBehavior { Static, MoveVertically, ShrinkAndGrowHorizontally, SeeSaw }
     private PlatformBehavior platformBehavior;
 
-    public float rotationSpeed = 2.0f; // Rotation speed for see-saw
+    public float rotationSpeed = 1.0f; // Rotation speed for see-saw
     private float targetRotation; // Target angle for see-saw rotation
 
     private float moveSpeed;
