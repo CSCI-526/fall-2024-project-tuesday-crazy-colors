@@ -73,7 +73,7 @@ public class PlayerController : MonoBehaviour
     public GameObject bulletPrefab;
     public float bulletSpeed = 20f;
     public float fireRate = 0.5f;
-    private float nextFireTime = 0f;
+    private float nextFireTime = 0.3f;
 
     // //lives
     // public int lives = 3;
@@ -218,10 +218,9 @@ public class PlayerController : MonoBehaviour
         // {
         //     respawnPosition = transform.position;
         // }
-        if (Input.GetMouseButtonDown(0) && Time.time > lastShootTime + shootCooldown)
+        if (Input.GetMouseButtonDown(0)) // Left mouse button
         {
             Shoot();
-            lastShootTime = Time.time;
         }
         transform.rotation = initialRotation;
         RotateWithSeesaw();
@@ -262,11 +261,16 @@ public class PlayerController : MonoBehaviour
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
-        GameObject projectile = Instantiate(projectilePrefab, transform.position, rotation);
-        Projectile projectileScript = projectile.GetComponent<Projectile>();
-        if (projectileScript != null)
+        GameObject bullet = Instantiate(bulletPrefab, transform.position, rotation);
+        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+        
+        if (rb != null)
         {
-            projectileScript.speed *= direction.magnitude;
+            rb.velocity = direction * bulletSpeed;
+        }
+        else
+        {
+            Debug.LogError("Bullet prefab is missing Rigidbody2D component!");
         }
     }
 

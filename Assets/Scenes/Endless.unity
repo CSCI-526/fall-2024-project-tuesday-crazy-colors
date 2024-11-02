@@ -1971,7 +1971,7 @@ MonoBehaviour:
     m_Bits: 128
   endGameUI: {fileID: 1814669672}
   scoreManager: {fileID: 1557162173}
-  sendToGoogle: {fileID: 0}
+  sendToGoogle: {fileID: 24468771}
   fallThreshold: -100
   fallCheckDelay: 0.5
   startGameUI: {fileID: 1398384554}
@@ -1984,6 +1984,9 @@ MonoBehaviour:
   coinText: {fileID: 17409010}
   projectilePrefab: {fileID: 1271186404359259157, guid: b0610c8246a0141e08ff9d8af001ebf9, type: 3}
   shootCooldown: 0.5
+  bulletPrefab: {fileID: 1271186404359259157, guid: b0610c8246a0141e08ff9d8af001ebf9, type: 3}
+  bulletSpeed: 20
+  fireRate: 0.5
 --- !u!1 &620164768
 GameObject:
   m_ObjectHideFlags: 0

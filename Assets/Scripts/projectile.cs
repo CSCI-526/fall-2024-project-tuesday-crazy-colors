@@ -22,5 +22,9 @@ public class Projectile : MonoBehaviour
             Destroy(other.gameObject);
             Destroy(gameObject);
         }
+        else if (other.CompareTag("Platform"))
+        {
+            Destroy(gameObject);
+        }
     }
 }
