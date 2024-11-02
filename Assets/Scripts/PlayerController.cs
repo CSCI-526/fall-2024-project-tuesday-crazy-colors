@@ -143,6 +143,12 @@ public class PlayerController : MonoBehaviour
     // }
 
     // Update is called once per frame
+
+    void LateUpdate()
+    {
+        UpdateCrosshairPosition();
+    }
+
     void UpdateCrosshairPosition()
     {
         if (crosshair == null)
