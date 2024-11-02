@@ -38,7 +38,8 @@ public class TutorialPlayerController : MonoBehaviour
     {
         isGrounded = Physics2D.IsTouchingLayers(playerCollider, whatIsGroundLayer);
         
-        float horizontalInput = Input.GetAxisRaw("Horizontal");
+        // float horizontalInput = Input.GetAxisRaw("Horizontal");
+        float horizontalInput = 1f;
         playerRigidbody.velocity = new Vector2(horizontalInput * moveSpeed, playerRigidbody.velocity.y);
 
         if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
