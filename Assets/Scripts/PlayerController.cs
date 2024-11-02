@@ -74,6 +74,9 @@ public class PlayerController : MonoBehaviour
     public float bulletSpeed = 20f;
     public float fireRate = 0.5f;
     private float nextFireTime = 0.3f;
+    public GameObject crosshairPrefab;
+    private GameObject crosshair;
+    public float crosshairDistance = 1f;
 
     // //lives
     // public int lives = 3;
@@ -84,6 +87,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        crosshair = Instantiate(crosshairPrefab, transform.position, Quaternion.identity);
         initialPlayerScale = transform.localScale;
         playerRigidbody = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<Collider2D>();
@@ -139,6 +143,19 @@ public class PlayerController : MonoBehaviour
     // }
 
     // Update is called once per frame
+    void UpdateCrosshairPosition()
+    {
+        if (crosshair == null)
+        {
+            // Crosshair has been destroyed, so recreate it or handle the situation
+            // For example:
+            // crosshair = Instantiate(crosshairPrefab, transform.position, Quaternion.identity);
+            return;
+        }
+
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        crosshair.transform.position = new Vector3(mousePosition.x, mousePosition.y, 0);
+    }
     void Update()
     {
         
@@ -179,17 +196,17 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
             ChangeColorAscending();
         }
 
-        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
             ChangeColorDescending();
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.W) && isGrounded)
         {
             playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
         }
@@ -224,6 +241,11 @@ public class PlayerController : MonoBehaviour
         }
         transform.rotation = initialRotation;
         RotateWithSeesaw();
+        UpdateCrosshairPosition();
+        if (crosshair != null)
+        {
+            UpdateCrosshairPosition();
+        }
     }
 
     public void ActivateShadowImmunity(float duration)
@@ -255,13 +277,32 @@ public class PlayerController : MonoBehaviour
 
     void Shoot()
     {
+        if (Camera.main == null)
+        {
+            Debug.LogError("Main camera not found!");
+            return;
+        }
+
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 direction = (mousePosition - transform.position).normalized;
 
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
+        if (bulletPrefab == null)
+        {
+            Debug.LogError("Bullet prefab is not assigned!");
+            return;
+        }
+
         GameObject bullet = Instantiate(bulletPrefab, transform.position, rotation);
+        
+        if (bullet == null)
+        {
+            Debug.LogError("Failed to instantiate bullet!");
+            return;
+        }
+
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         
         if (rb != null)
@@ -473,6 +514,11 @@ public class PlayerController : MonoBehaviour
             {
                 Debug.LogError("SendToGoogle instance not found.");
             }
+        }
+        if (crosshair != null)
+        {
+            Destroy(crosshair);
+            crosshair = null;
         }
 
         // SceneManager.LoadScene("Main Menu");
