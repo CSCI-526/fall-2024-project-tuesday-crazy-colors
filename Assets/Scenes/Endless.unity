@@ -1982,6 +1982,8 @@ MonoBehaviour:
   mergeEffectPrefab: {fileID: 1584441401532526543, guid: e09234002c7d543de98407b978a06536, type: 3}
   coins: 0
   coinText: {fileID: 17409010}
+  projectilePrefab: {fileID: 1271186404359259157, guid: b0610c8246a0141e08ff9d8af001ebf9, type: 3}
+  shootCooldown: 0.5
 --- !u!1 &620164768
 GameObject:
   m_ObjectHideFlags: 0

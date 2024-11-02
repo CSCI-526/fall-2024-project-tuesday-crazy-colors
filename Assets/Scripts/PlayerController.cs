@@ -65,6 +65,9 @@ public class PlayerController : MonoBehaviour
     // coins
     public int coins = 0;
     public Text coinText;
+    public GameObject projectilePrefab;
+    public float shootCooldown = 0.1f;
+    private float lastShootTime;
 
     // //lives
     // public int lives = 3;
@@ -209,6 +212,11 @@ public class PlayerController : MonoBehaviour
         // {
         //     respawnPosition = transform.position;
         // }
+        if (Input.GetMouseButtonDown(0) && Time.time > lastShootTime + shootCooldown)
+        {
+            Shoot();
+            lastShootTime = Time.time;
+        }
     }
 
     public void ActivateShadowImmunity(float duration)
@@ -235,6 +243,40 @@ public class PlayerController : MonoBehaviour
             }
 
             StartCoroutine(ShadowImmunityCoroutine(duration));
+        }
+    }
+
+    void Shoot()
+    {
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mousePosition - transform.position).normalized;
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+
+        GameObject projectile = Instantiate(projectilePrefab, transform.position, rotation);
+        Projectile projectileScript = projectile.GetComponent<Projectile>();
+        if (projectileScript != null)
+        {
+            projectileScript.speed *= direction.magnitude;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            if (!powerUpActive)
+            {
+                EndGame();
+                Debug.Log("Game Over! Player collided with an enemy.");
+            }
+            else
+            {
+                // If the player has a power-up, destroy the enemy instead
+                Destroy(other.gameObject);
+                Debug.Log("Enemy destroyed by powered-up player!");
+            }
         }
     }
 
@@ -554,11 +596,11 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            Debug.Log("Game Over! Enemy collided with the player.");
-            EndGame(); 
-        }
+        // if (collision.gameObject.CompareTag("Enemy"))
+        // {
+        //     Debug.Log("Game Over! Enemy collided with the player.");
+        //     EndGame(); 
+        // }
     }
 
     public void AbsorbShadow()
