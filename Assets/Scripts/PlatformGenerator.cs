@@ -31,6 +31,12 @@ public class PlatformGenerator : MonoBehaviour
     private bool blackPowerUpShown = false;
     private EnemySpawner enemySpawner;
 
+    // BG color change
+    
+    public Color[] darkBackgroundColors;  
+    
+    private int platformsGenerated = 0; 
+
     // Start is called before the first frame update
 
     void Start()
@@ -38,7 +44,26 @@ public class PlatformGenerator : MonoBehaviour
         platformWidth = platform.transform.localScale.x;
         platformColors = new Color[] { Color.red, Color.yellow, Color.green };
         enemySpawner = FindObjectOfType<EnemySpawner>();
-
+    
+         darkBackgroundColors = new Color[] { 
+            new Color(0.1f, 0.1f, 0.2f), // Very dark navy
+            new Color(0.15f, 0.1f, 0.2f), // Dark purple
+            new Color(0.2f, 0.1f, 0.15f), // Dark burgundy
+            new Color(0.1f, 0.2f, 0.1f), // Dark forest green
+            new Color(0.2f, 0.15f, 0.1f), // Dark brownish-gray
+            new Color(0.15f, 0.2f, 0.25f), // Dark teal
+            new Color(0.1f, 0.1f, 0.1f), // Very dark gray
+            new Color(0.2f, 0.15f, 0.2f), // Dark slate gray
+            new Color(0.2f, 0.2f, 0.1f), // Dark olive green
+            new Color(0.2f, 0.1f, 0.1f), // Dark red
+            new Color(0.1f, 0.2f, 0.2f), // Dark cyan
+            new Color(0.15f, 0.1f, 0.15f), // Dark magenta
+            new Color(0.1f, 0.1f, 0.15f), // Dark charcoal
+            new Color(0.15f, 0.2f, 0.15f), // Dark emerald
+            new Color(0.1f, 0.1f, 0.2f), // Deep indigo
+            new Color(0.2f, 0.2f, 0.2f)
+        };
+   
         // Initialize label as empty
         powerUpLabel.text = "";
     }
@@ -58,6 +83,17 @@ public class PlatformGenerator : MonoBehaviour
 
             Renderer platformRenderer = newPlatform.GetComponent<Renderer>();
             platformRenderer.material.color = platformColors[Random.Range(0, platformColors.Length)];
+            
+            platformCount++;
+            platformsGenerated++;
+
+            if (platformsGenerated % 3 == 0)
+            {
+                Color newBackgroundColor = darkBackgroundColors[Random.Range(0, darkBackgroundColors.Length)];
+                Camera.main.backgroundColor = newBackgroundColor;
+                Debug.Log("Background color changed to: " + newBackgroundColor);
+            }
+           
             // newPlatform.AddComponent<PlatformMover>();
 
              PlatformMover platformMover = newPlatform.AddComponent<PlatformMover>();
