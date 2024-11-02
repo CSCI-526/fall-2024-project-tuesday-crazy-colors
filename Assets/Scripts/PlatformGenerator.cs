@@ -87,7 +87,7 @@ public class PlatformGenerator : MonoBehaviour
             platformCount++;
             platformsGenerated++;
 
-            if (platformsGenerated % 3 == 0)
+            if (platformCount % 5 == 0)
             {
                 Color newBackgroundColor = darkBackgroundColors[Random.Range(0, darkBackgroundColors.Length)];
                 Camera.main.backgroundColor = newBackgroundColor;
