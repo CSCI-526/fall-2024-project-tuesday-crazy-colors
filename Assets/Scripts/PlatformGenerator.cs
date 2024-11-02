@@ -29,6 +29,7 @@ public class PlatformGenerator : MonoBehaviour
     // Flags to check if power-ups have been shown
     private bool whitePowerUpShown = false;
     private bool blackPowerUpShown = false;
+    private EnemySpawner enemySpawner;
 
     // Start is called before the first frame update
 
@@ -36,6 +37,7 @@ public class PlatformGenerator : MonoBehaviour
     {
         platformWidth = platform.transform.localScale.x;
         platformColors = new Color[] { Color.red, Color.yellow, Color.green };
+        enemySpawner = FindObjectOfType<EnemySpawner>();
 
         // Initialize label as empty
         powerUpLabel.text = "";
@@ -107,6 +109,10 @@ public class PlatformGenerator : MonoBehaviour
                 {
                     Instantiate(coinPrefab, newPlatform.transform.position + Vector3.up * 1.5f, Quaternion.identity);
                 }
+            }
+            if (enemySpawner != null)
+            {
+                enemySpawner.AddPlatform(newPlatform);
             }
         }
     }

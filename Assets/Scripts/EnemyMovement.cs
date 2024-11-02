@@ -1,31 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    public float speed = 2.0f;          
-    public Transform pointA;            
-    public Transform pointB;
-    public float size = 0.1f;
+    public float speed = 2.0f;
+    private float leftBound;
+    private float rightBound;
+    private bool movingRight = true;
 
-    private bool movingRight = true;                 
+    public void SetMovementBounds(float left, float right)
+    {
+        leftBound = left;
+        rightBound = right;
+    }
 
     void Update()
     {
-        
         if (movingRight)
         {
-            transform.position = Vector2.MoveTowards(transform.position, pointB.position, speed * Time.deltaTime);
-            if (transform.position.x >= pointB.position.x)
+            transform.Translate(Vector3.right * speed * Time.deltaTime);
+            if (transform.localPosition.x >= rightBound)
             {
                 movingRight = false;
             }
         }
         else
         {
-            transform.position = Vector2.MoveTowards(transform.position, pointA.position, speed * Time.deltaTime);
-            if (transform.position.x <= pointA.position.x)
+            transform.Translate(Vector3.left * speed * Time.deltaTime);
+            if (transform.localPosition.x <= leftBound)
             {
                 movingRight = true;
             }
