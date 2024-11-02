@@ -68,6 +68,12 @@ public class PlayerController : MonoBehaviour
     public GameObject projectilePrefab;
     public float shootCooldown = 0.1f;
     private float lastShootTime;
+    private Quaternion initialRotation;
+    private bool isOnSeesaw = false;
+    public GameObject bulletPrefab;
+    public float bulletSpeed = 20f;
+    public float fireRate = 0.5f;
+    private float nextFireTime = 0f;
 
     // //lives
     // public int lives = 3;
@@ -120,8 +126,8 @@ public class PlayerController : MonoBehaviour
         // startPosition = transform.position;
         // respawnPosition = startPosition;
         // UpdateLivesText();
-
-
+        initialRotation = transform.rotation;
+        playerRigidbody.freezeRotation = true;
     }
 
     // void UpdateLivesText()
@@ -217,6 +223,8 @@ public class PlayerController : MonoBehaviour
             Shoot();
             lastShootTime = Time.time;
         }
+        transform.rotation = initialRotation;
+        RotateWithSeesaw();
     }
 
     public void ActivateShadowImmunity(float duration)
@@ -561,6 +569,13 @@ public class PlayerController : MonoBehaviour
                     // Determine if the player landed on the left or right side of the platform
                     bool isLandingLeft = collision.contacts[0].point.x < collision.transform.position.x;
                     platformMover.AdjustSeeSawRotation(isLandingLeft);
+                    isOnSeesaw = true;
+                    transform.SetParent(collision.transform);
+                }
+                else
+                {
+                    isOnSeesaw = false;
+                    transform.SetParent(null);
                 }
                 
 
@@ -630,6 +645,18 @@ public class PlayerController : MonoBehaviour
             currentPlatform = null;
             isOnSeeSaw = false;  // Reset when the player exits the platform
             transform.SetParent(null);  // Remove any parenting when the player exits the platform
+        }
+    }
+    private void RotateWithSeesaw()
+    {
+        if (isOnSeesaw && currentPlatform != null)
+        {
+            float seesawRotation = currentPlatform.transform.rotation.eulerAngles.z;
+            transform.rotation = Quaternion.Euler(0, 0, seesawRotation);
+        }
+        else
+        {
+            transform.rotation = Quaternion.identity;
         }
     }
 
