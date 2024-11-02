@@ -6,7 +6,6 @@ public class EnemySpawner : MonoBehaviour
     public GameObject enemyPrefab;
     public float spawnInterval = 3f;
     public int maxEnemiesPerPlatform = 3;
-
     private float spawnTimer;
     private List<GameObject> platforms = new List<GameObject>();
     private ScoreManager scoreManager;
@@ -22,7 +21,6 @@ public class EnemySpawner : MonoBehaviour
     void Update()
     {
         spawnTimer -= Time.deltaTime;
-
         if (spawnTimer <= 0)
         {
             SpawnEnemies();
@@ -37,12 +35,10 @@ public class EnemySpawner : MonoBehaviour
         {
             GameObject spawnPlatform = platforms[spawnIndex];
             int enemiesToSpawn = CalculateEnemiesToSpawn();
-            
             for (int i = 0; i < enemiesToSpawn; i++)
             {
                 SpawnEnemyOnPlatform(spawnPlatform);
             }
-            
             lastSpawnedPlatformIndex = spawnIndex;
         }
     }
@@ -66,10 +62,17 @@ public class EnemySpawner : MonoBehaviour
 
     void SpawnEnemyOnPlatform(GameObject platform)
     {
+        // Check if the platform is a seesaw
+        PlatformMover platformMover = platform.GetComponent<PlatformMover>();
+        if (platformMover != null && platformMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw)
+        {
+            // Skip spawning on seesaw platforms
+            return;
+        }
+
         Vector3 platformSize = platform.GetComponent<Renderer>().bounds.size;
         float randomX = Random.Range(-platformSize.x / 2 + 0.5f, platformSize.x / 2 - 0.5f);
         Vector3 spawnPosition = platform.transform.position + new Vector3(randomX, platformSize.y / 2 + 0.5f, 0);
-
         GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
         enemy.transform.SetParent(platform.transform);
 
@@ -94,7 +97,12 @@ public class EnemySpawner : MonoBehaviour
         {
             if (platforms[i] != null)
             {
-                return i;
+                // Check if the platform is not a seesaw
+                PlatformMover platformMover = platforms[i].GetComponent<PlatformMover>();
+                if (platformMover == null || platformMover.GetBehavior() != PlatformMover.PlatformBehavior.SeeSaw)
+                {
+                    return i;
+                }
             }
         }
 

@@ -1447,6 +1447,7 @@ MonoBehaviour:
   powerUpLabel: {fileID: 1206853042}
   platformColors: []
   verticalOffsetRange: 5
+  darkBackgroundColors: []
 --- !u!1 &555487276
 GameObject:
   m_ObjectHideFlags: 0
@@ -5508,6 +5509,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2016646042211493663, guid: 1e3d71c6e9b290e49945c86099b973b4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5641122395573997511, guid: 1e3d71c6e9b290e49945c86099b973b4, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5641122395573997511, guid: 1e3d71c6e9b290e49945c86099b973b4, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5641122395573997511, guid: 1e3d71c6e9b290e49945c86099b973b4, type: 3}
+      propertyPath: m_Color.r
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
