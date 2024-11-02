@@ -212,7 +212,7 @@ public class PlayerController : MonoBehaviour
             ChangeColorDescending();
         }
 
-        if (Input.GetKeyDown(KeyCode.W) && isGrounded)
+        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded)
         {
             playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
         }
