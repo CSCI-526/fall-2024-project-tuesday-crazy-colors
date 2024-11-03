@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "fall-2024-project-tuesday-crazy-colors.sln"
+    "dotnet.defaultSolution": "Crazy_Colors.sln"
 }

@@ -476,6 +476,34 @@ public class PlayerController : MonoBehaviour
         //     return;
         // }
 
+
+        //Death Analytics start
+
+        bool diedFromEnemy = false;
+        bool diedFromColor = false;
+        bool diedFromPlatform = false;
+
+
+        switch (deathReason)
+        {
+            case "enemy":
+                diedFromEnemy = true;
+                break;
+            case "color":
+                diedFromColor = true;
+                break;
+            case "platform":
+                diedFromPlatform = true;
+                break;
+            case "fall":
+                diedFromPlatform = true; // Assuming falling is considered a platform death
+                break;
+        }
+
+        DeathAnalytics.Instance.LogDeath(diedFromEnemy, diedFromColor, diedFromPlatform);
+
+        //Death Analytics ends
+        
         shadowImmunityTimerText.gameObject.SetActive(false);
         powerUpTimerText.gameObject.SetActive(false);
 
