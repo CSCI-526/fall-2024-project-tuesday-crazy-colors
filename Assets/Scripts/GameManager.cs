@@ -11,7 +11,19 @@ public class GameManager : MonoBehaviour
     {
         if (goalObject != null)
         {
-            goalObject.GetComponent<Collider>().isTrigger = true;
+            Collider goalCollider = goalObject.GetComponent<Collider>();
+            if (goalCollider != null)
+            {
+                goalCollider.isTrigger = true;
+            }
+            else
+            {
+                Debug.LogWarning("No Collider found on Goal object.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Goal object is not assigned in the GameManager.");
         }
     }
 

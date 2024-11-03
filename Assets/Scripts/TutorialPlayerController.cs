@@ -31,6 +31,7 @@ public class TutorialPlayerController : MonoBehaviour
     public GameObject crosshairPrefab;
     private GameObject crosshair;
     public float crosshairDistance = 1f;
+    private Quaternion initialRotation;
 
     // Start is called before the first frame update
     void Start()
@@ -39,11 +40,10 @@ public class TutorialPlayerController : MonoBehaviour
         playerRigidbody = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-    }
 
-    void LateUpdate()
-    {
-        UpdateCrosshairPosition();
+        // to fix the player shape change or rotation bug
+        initialRotation = transform.rotation;
+        playerRigidbody.freezeRotation = true;
     }
 
     void UpdateCrosshairPosition()
@@ -58,6 +58,18 @@ public class TutorialPlayerController : MonoBehaviour
 
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         crosshair.transform.position = new Vector3(mousePosition.x, mousePosition.y, 0);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            RestartGame();
+        }
+    }
+    void LateUpdate()
+    {
+        UpdateCrosshairPosition();
     }
 
     // Update is called once per frame
@@ -88,11 +100,11 @@ public class TutorialPlayerController : MonoBehaviour
         {
             Shoot();
         }
-        UpdateCrosshairPosition();
-        if (crosshair != null)
-        {
-            UpdateCrosshairPosition();
-        }
+        // UpdateCrosshairPosition();
+        // if (crosshair != null)
+        // {
+        //     UpdateCrosshairPosition();
+        // }
 
         if (currentPlatform != null)
         {
@@ -121,6 +133,9 @@ public class TutorialPlayerController : MonoBehaviour
             transform.position += platformMovement;  // Move the player along with the platform's movement
             platformLastPosition = currentPlatform.transform.position;  // Update platform's last position
         }
+
+        // to fix the player shape change or rotation bug
+        transform.rotation = initialRotation;
     }
 
     void Shoot()
