@@ -1447,6 +1447,7 @@ MonoBehaviour:
   powerUpLabel: {fileID: 1206853042}
   platformColors: []
   verticalOffsetRange: 5
+  darkBackgroundColors: []
 --- !u!1 &555487276
 GameObject:
   m_ObjectHideFlags: 0
@@ -1970,7 +1971,7 @@ MonoBehaviour:
     m_Bits: 128
   endGameUI: {fileID: 1814669672}
   scoreManager: {fileID: 1557162173}
-  sendToGoogle: {fileID: 0}
+  sendToGoogle: {fileID: 24468771}
   fallThreshold: -100
   fallCheckDelay: 0.5
   startGameUI: {fileID: 1398384554}
@@ -1981,6 +1982,13 @@ MonoBehaviour:
   mergeEffectPrefab: {fileID: 1584441401532526543, guid: e09234002c7d543de98407b978a06536, type: 3}
   coins: 0
   coinText: {fileID: 17409010}
+  projectilePrefab: {fileID: 1271186404359259157, guid: b0610c8246a0141e08ff9d8af001ebf9, type: 3}
+  shootCooldown: 0.5
+  bulletPrefab: {fileID: 1271186404359259157, guid: b0610c8246a0141e08ff9d8af001ebf9, type: 3}
+  bulletSpeed: 20
+  fireRate: 0.5
+  crosshairPrefab: {fileID: 905525668960405532, guid: 9cbf78f60f4cd48e191602f28291dae2, type: 3}
+  crosshairDistance: 1
 --- !u!1 &620164768
 GameObject:
   m_ObjectHideFlags: 0
@@ -4580,8 +4588,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 293383660504943055, guid: 1e3d71c6e9b290e49945c86099b973b4, type: 3}
-  spawnInterval: 5
-  maxEnemiesPerPlatform: 3
+  initialSpawnInterval: 3
+  baseEnemiesPerSpawn: 1
+  enemyIncreaseInterval: 10
+  maxEnemiesPerSpawn: 5
 --- !u!4 &1699711212
 Transform:
   m_ObjectHideFlags: 0
@@ -5508,6 +5518,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2016646042211493663, guid: 1e3d71c6e9b290e49945c86099b973b4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5641122395573997511, guid: 1e3d71c6e9b290e49945c86099b973b4, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5641122395573997511, guid: 1e3d71c6e9b290e49945c86099b973b4, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5641122395573997511, guid: 1e3d71c6e9b290e49945c86099b973b4, type: 3}
+      propertyPath: m_Color.r
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

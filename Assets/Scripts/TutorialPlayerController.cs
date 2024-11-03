@@ -24,13 +24,40 @@ public class TutorialPlayerController : MonoBehaviour
     private GameObject currentPlatform;
 
     private SpriteRenderer spriteRenderer;
+    public float shootCooldown = 0.1f;
+    private float lastShootTime;
+    public GameObject bulletPrefab;
+    public float bulletSpeed = 20f;
+    public GameObject crosshairPrefab;
+    private GameObject crosshair;
+    public float crosshairDistance = 1f;
 
     // Start is called before the first frame update
     void Start()
     {
+        crosshair = Instantiate(crosshairPrefab, transform.position, Quaternion.identity);
         playerRigidbody = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    void LateUpdate()
+    {
+        UpdateCrosshairPosition();
+    }
+
+    void UpdateCrosshairPosition()
+    {
+        if (crosshair == null)
+        {
+            // Crosshair has been destroyed, so recreate it or handle the situation
+            // For example:
+            // crosshair = Instantiate(crosshairPrefab, transform.position, Quaternion.identity);
+            return;
+        }
+
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        crosshair.transform.position = new Vector3(mousePosition.x, mousePosition.y, 0);
     }
 
     // Update is called once per frame
@@ -42,19 +69,29 @@ public class TutorialPlayerController : MonoBehaviour
         float horizontalInput = 1f;
         playerRigidbody.velocity = new Vector2(horizontalInput * moveSpeed, playerRigidbody.velocity.y);
 
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
             ChangeColorAscending();
         }
 
-        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
             ChangeColorDescending();
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded)
         {
             playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
+        }
+
+        if (Input.GetMouseButtonDown(0)) // Left mouse button
+        {
+            Shoot();
+        }
+        UpdateCrosshairPosition();
+        if (crosshair != null)
+        {
+            UpdateCrosshairPosition();
         }
 
         if (currentPlatform != null)
@@ -83,6 +120,46 @@ public class TutorialPlayerController : MonoBehaviour
             Vector3 platformMovement = currentPlatform.transform.position - platformLastPosition;
             transform.position += platformMovement;  // Move the player along with the platform's movement
             platformLastPosition = currentPlatform.transform.position;  // Update platform's last position
+        }
+    }
+
+    void Shoot()
+    {
+        if (Camera.main == null)
+        {
+            Debug.LogError("Main camera not found!");
+            return;
+        }
+
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mousePosition - transform.position).normalized;
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+
+        if (bulletPrefab == null)
+        {
+            Debug.LogError("Bullet prefab is not assigned!");
+            return;
+        }
+
+        GameObject bullet = Instantiate(bulletPrefab, transform.position, rotation);
+        
+        if (bullet == null)
+        {
+            Debug.LogError("Failed to instantiate bullet!");
+            return;
+        }
+
+        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+        
+        if (rb != null)
+        {
+            rb.velocity = direction * bulletSpeed;
+        }
+        else
+        {
+            Debug.LogError("Bullet prefab is missing Rigidbody2D component!");
         }
     }
 

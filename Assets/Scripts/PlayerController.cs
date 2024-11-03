@@ -65,6 +65,18 @@ public class PlayerController : MonoBehaviour
     // coins
     public int coins = 0;
     public Text coinText;
+    public GameObject projectilePrefab;
+    public float shootCooldown = 0.1f;
+    private float lastShootTime;
+    private Quaternion initialRotation;
+    private bool isOnSeesaw = false;
+    public GameObject bulletPrefab;
+    public float bulletSpeed = 20f;
+    public float fireRate = 0.5f;
+    private float nextFireTime = 0.3f;
+    public GameObject crosshairPrefab;
+    private GameObject crosshair;
+    public float crosshairDistance = 1f;
 
     // //lives
     // public int lives = 3;
@@ -75,6 +87,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        crosshair = Instantiate(crosshairPrefab, transform.position, Quaternion.identity);
         initialPlayerScale = transform.localScale;
         playerRigidbody = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<Collider2D>();
@@ -117,8 +130,8 @@ public class PlayerController : MonoBehaviour
         // startPosition = transform.position;
         // respawnPosition = startPosition;
         // UpdateLivesText();
-
-
+        initialRotation = transform.rotation;
+        playerRigidbody.freezeRotation = true;
     }
 
     // void UpdateLivesText()
@@ -130,6 +143,25 @@ public class PlayerController : MonoBehaviour
     // }
 
     // Update is called once per frame
+
+    void LateUpdate()
+    {
+        UpdateCrosshairPosition();
+    }
+
+    void UpdateCrosshairPosition()
+    {
+        if (crosshair == null)
+        {
+            // Crosshair has been destroyed, so recreate it or handle the situation
+            // For example:
+            // crosshair = Instantiate(crosshairPrefab, transform.position, Quaternion.identity);
+            return;
+        }
+
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        crosshair.transform.position = new Vector3(mousePosition.x, mousePosition.y, 0);
+    }
     void Update()
     {
         
@@ -170,17 +202,17 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
             ChangeColorAscending();
         }
 
-        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
             ChangeColorDescending();
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded)
         {
             playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
         }
@@ -209,6 +241,17 @@ public class PlayerController : MonoBehaviour
         // {
         //     respawnPosition = transform.position;
         // }
+        if (Input.GetMouseButtonDown(0)) // Left mouse button
+        {
+            Shoot();
+        }
+        transform.rotation = initialRotation;
+        RotateWithSeesaw();
+        UpdateCrosshairPosition();
+        if (crosshair != null)
+        {
+            UpdateCrosshairPosition();
+        }
     }
 
     public void ActivateShadowImmunity(float duration)
@@ -235,6 +278,64 @@ public class PlayerController : MonoBehaviour
             }
 
             StartCoroutine(ShadowImmunityCoroutine(duration));
+        }
+    }
+
+    void Shoot()
+    {
+        if (Camera.main == null)
+        {
+            Debug.LogError("Main camera not found!");
+            return;
+        }
+
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mousePosition - transform.position).normalized;
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+
+        if (bulletPrefab == null)
+        {
+            Debug.LogError("Bullet prefab is not assigned!");
+            return;
+        }
+
+        GameObject bullet = Instantiate(bulletPrefab, transform.position, rotation);
+        
+        if (bullet == null)
+        {
+            Debug.LogError("Failed to instantiate bullet!");
+            return;
+        }
+
+        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+        
+        if (rb != null)
+        {
+            rb.velocity = direction * bulletSpeed;
+        }
+        else
+        {
+            Debug.LogError("Bullet prefab is missing Rigidbody2D component!");
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            if (!powerUpActive)
+            {
+                EndGame();
+                Debug.Log("Game Over! Player collided with an enemy.");
+            }
+            else
+            {
+                // If the player has a power-up, destroy the enemy instead
+                Destroy(other.gameObject);
+                Debug.Log("Enemy destroyed by powered-up player!");
+            }
         }
     }
 
@@ -420,6 +521,11 @@ public class PlayerController : MonoBehaviour
                 Debug.LogError("SendToGoogle instance not found.");
             }
         }
+        if (crosshair != null)
+        {
+            Destroy(crosshair);
+            crosshair = null;
+        }
 
         // SceneManager.LoadScene("Main Menu");
     }
@@ -519,6 +625,13 @@ public class PlayerController : MonoBehaviour
                     // Determine if the player landed on the left or right side of the platform
                     bool isLandingLeft = collision.contacts[0].point.x < collision.transform.position.x;
                     platformMover.AdjustSeeSawRotation(isLandingLeft);
+                    isOnSeesaw = true;
+                    transform.SetParent(collision.transform);
+                }
+                else
+                {
+                    isOnSeesaw = false;
+                    transform.SetParent(null);
                 }
                 
 
@@ -554,11 +667,11 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            Debug.Log("Game Over! Enemy collided with the player.");
-            EndGame(); 
-        }
+        // if (collision.gameObject.CompareTag("Enemy"))
+        // {
+        //     Debug.Log("Game Over! Enemy collided with the player.");
+        //     EndGame(); 
+        // }
     }
 
     public void AbsorbShadow()
@@ -588,6 +701,18 @@ public class PlayerController : MonoBehaviour
             currentPlatform = null;
             isOnSeeSaw = false;  // Reset when the player exits the platform
             transform.SetParent(null);  // Remove any parenting when the player exits the platform
+        }
+    }
+    private void RotateWithSeesaw()
+    {
+        if (isOnSeesaw && currentPlatform != null)
+        {
+            float seesawRotation = currentPlatform.transform.rotation.eulerAngles.z;
+            transform.rotation = Quaternion.Euler(0, 0, seesawRotation);
+        }
+        else
+        {
+            transform.rotation = Quaternion.identity;
         }
     }
 
