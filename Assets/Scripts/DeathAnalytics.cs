@@ -5,19 +5,23 @@ using System;
 using UnityEngine.Networking;
 using System.Threading.Tasks;
 
-public class DeathAnalytics : Monobehavior
+public class DeathAnalytics : MonoBehaviour
 {
-    private static DeathAnalytics instance;
+    public static DeathAnalytics instance;
     private long sessionID;
     private bool deathEnemy;
     private bool deathColor;
-    private bool deathPlatfrom;
+    private bool deathPlatform;
+    private bool canLogDeath = true;
+    private float cooldownTime = 10f; // Adjust the cooldown duration as needed
+    private bool hasLoggedDeath = false; // New flag for logging
 
     void Awake()
     {
         if (instance == null)
         {
             instance = this;
+            sessionID = DateTime.Now.Ticks;
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -26,22 +30,60 @@ public class DeathAnalytics : Monobehavior
         }
     }
 
-    public void LogDeath(bool diedFromEnemy, bool diedFromColor, bool diedFromPlatform)
+
+    public async void DeathLog(bool diedFromEnemy, bool diedFromColor, bool diedFromPlatform)
     {
+        if (!canLogDeath) return; // Prevent logging if not allowed
+
+        if (hasLoggedDeath) 
+        {
+            Debug.Log("Death log already recorded. Waiting for cooldown.");
+            return; // Prevent logging if already logged
+        }
+
+        hasLoggedDeath = true; // Mark as logged
+
+        canLogDeath = false; // Lock logging
         deathEnemy = diedFromEnemy;
         deathColor = diedFromColor;
         deathPlatform = diedFromPlatform;
 
-        // Here you would send the data to your analytics system
         Debug.Log($"Death Analytics - Enemy: {deathEnemy}, Color: {deathColor}, Platform: {deathPlatform}");
+
+        await Post(sessionID.ToString(), deathColor.ToString(), deathEnemy.ToString(), deathPlatform.ToString());
+
+        // Start cooldown
+        await Task.Delay(TimeSpan.FromSeconds(cooldownTime));
+        canLogDeath = true; // Re-enable logging after cooldown
+        hasLoggedDeath = false; // Reset logging status for future logs
+        Debug.Log("Cooldown completed, ready to log death again.");
     }
+
+    public void ResetLogging()
+    {
+        hasLoggedDeath = false;
+    }
+
+    // public async void DeathLog(bool diedFromEnemy, bool diedFromColor, bool diedFromPlatform) //call this function somewhere
+    // {
+    //     if (hasLoggedDeath) return; // Prevent logging more than once
+
+    //     hasLoggedDeath = true; // Mark as logged
+    //     deathEnemy = diedFromEnemy;
+    //     deathColor = diedFromColor;
+    //     deathPlatform = diedFromPlatform;
+
+    //     Debug.Log($"Death Analytics - Enemy: {deathEnemy}, Color: {deathColor}, Platform: {deathPlatform}");
+
+    //     Post(sessionID.ToString(), deathColor.ToString(), deathEnemy.ToString(), deathPlatform.ToString());
+    // }
 
     private async Task Post(string sessionID, string deathColor, string deathEnemy, string deathPlatform)
     {
 
         string url = "https://docs.google.com/forms/u/1/d/e/1FAIpQLSfJZj4Q5X-65JhUFUVRbG9Ns0kfnFqNnTFiF_iUoSGThT2T5A/formResponse";
 
-        WWForm form = new WWWForm();
+        WWWForm form = new WWWForm();
         form.AddField("entry.1692969652", sessionID);
         form.AddField("entry.1603297951", deathColor);
         form.AddField("entry.1751409824", deathEnemy);
@@ -62,7 +104,7 @@ public class DeathAnalytics : Monobehavior
                 {
                     Debug.Log("Received 429 error. Retrying after delay...");
                     await Task.Delay(10000); // Wait for 10 seconds
-                    await Post(sessionID, score, maxScore, gamePlayTime); // Retry sending
+                    await Post(sessionID, deathColor, deathEnemy, deathPlatform); // Retry sending
                 }
                 else
                 {
@@ -71,7 +113,7 @@ public class DeathAnalytics : Monobehavior
             }
             else
             {
-                Debug.Log("Data sent successfully!");
+                Debug.Log("Death Data sent successfully!");
             }
         }
     }

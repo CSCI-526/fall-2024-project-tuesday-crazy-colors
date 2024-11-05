@@ -20,8 +20,8 @@ public class ScoreManager : MonoBehaviour
     public void UpdateScoreText()
     {
         scoreText.text = "Score: " + score.ToString() + "\n" + "Max Score: " + maxScore.ToString();
-        Debug.Log("Current Score: " + score);
-        Debug.Log("Max Score: " + maxScore);
+        // Debug.Log("Current Score: " + score);
+        // Debug.Log("Max Score: " + maxScore);
 
         if (score > maxScore)
         {
