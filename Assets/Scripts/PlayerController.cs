@@ -78,6 +78,15 @@ public class PlayerController : MonoBehaviour
     private GameObject crosshair;
     public float crosshairDistance = 1f;
 
+
+    // Death reason
+    private string deathReason;
+    private bool fellOffPlatform = false;
+    private bool collidedWithEnemy = false;
+    private bool platformColorMismatch = false;
+    private bool deathDataSent = false;
+
+
     // //lives
     // public int lives = 3;
     // public Text livesText;
@@ -93,6 +102,7 @@ public class PlayerController : MonoBehaviour
         playerCollider = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.color = colorOrder[currentColorIndex];
+
         if (shadow != null)
         {
             shadowCollider = shadow.GetComponent<Collider2D>();
@@ -164,7 +174,7 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-        
+
         if (!gameStarted)
         {
             return;
@@ -197,6 +207,7 @@ public class PlayerController : MonoBehaviour
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
                 // EndGame("fall");
+
                 EndGame();
                 return;
             }
@@ -222,6 +233,8 @@ public class PlayerController : MonoBehaviour
         if (transform.position.y < fallThreshold && fallCheckTimer > fallCheckDelay)
         {
             // EndGame("fall");
+            fellOffPlatform = true;
+            Debug.Log(fellOffPlatform);
             EndGame();
             Debug.Log("Game Over! Player missed the next Platform.");
             fallCheckTimer = 0f;
@@ -252,6 +265,13 @@ public class PlayerController : MonoBehaviour
         {
             UpdateCrosshairPosition();
         }
+
+
+        // if (CheckForDeath())
+        // {
+        //     // Call the method to log the death with the reason
+        //     LogDeath();
+        // }
     }
 
     public void ActivateShadowImmunity(float duration)
@@ -302,7 +322,7 @@ public class PlayerController : MonoBehaviour
         }
 
         GameObject bullet = Instantiate(bulletPrefab, transform.position, rotation);
-        
+
         if (bullet == null)
         {
             Debug.LogError("Failed to instantiate bullet!");
@@ -310,7 +330,7 @@ public class PlayerController : MonoBehaviour
         }
 
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-        
+
         if (rb != null)
         {
             rb.velocity = direction * bulletSpeed;
@@ -327,6 +347,8 @@ public class PlayerController : MonoBehaviour
         {
             if (!powerUpActive)
             {
+                collidedWithEnemy = true;
+                Debug.Log(collidedWithEnemy);
                 EndGame();
                 Debug.Log("Game Over! Player collided with an enemy.");
             }
@@ -338,6 +360,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
 
     private IEnumerator ShadowImmunityCoroutine(float duration)
     {
@@ -479,6 +502,17 @@ public class PlayerController : MonoBehaviour
         shadowImmunityTimerText.gameObject.SetActive(false);
         powerUpTimerText.gameObject.SetActive(false);
 
+        // DeathAnalytics.instance.DeathLog(collidedWithEnemy, platformColorMismatch, fellOffPlatform);
+
+        if (!deathDataSent)
+        {
+            deathDataSent = true;
+            DeathAnalytics.instance.DeathLog(collidedWithEnemy, platformColorMismatch, fellOffPlatform);
+            Debug.Log($"Death Reason in Player Control  - Enemy: {collidedWithEnemy}, Color: {platformColorMismatch}, Platform: {fellOffPlatform}");
+            Debug.Log("Passed bool values to the DeathAnalytics");
+
+        }
+
         if (endGameUI != null)
         {
             endGameUI.SetActive(true);
@@ -527,6 +561,10 @@ public class PlayerController : MonoBehaviour
             crosshair = null;
         }
 
+        if (platformColorMismatch)
+        {
+            Debug.Log("Death reason: Platform color mismatch");
+        }
         // SceneManager.LoadScene("Main Menu");
     }
 
@@ -612,6 +650,10 @@ public class PlayerController : MonoBehaviour
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
                 // EndGame("color");
+
+
+                platformColorMismatch = true;
+                Debug.Log(platformColorMismatch);
                 EndGame();
                 Debug.Log("Game Over! Player landed on a different color platform.");
             }
@@ -633,7 +675,7 @@ public class PlayerController : MonoBehaviour
                     isOnSeesaw = false;
                     transform.SetParent(null);
                 }
-                
+
 
                 isOnSeeSaw = platformMover != null && platformMover.GetBehavior() != PlatformMover.PlatformBehavior.Static;
                 if (!isOnSeeSaw)
@@ -730,6 +772,12 @@ public class PlayerController : MonoBehaviour
         }
 
         dataSent = false;
+
+
+        fellOffPlatform = false;
+        collidedWithEnemy = false;
+        platformColorMismatch = false;
+        deathDataSent = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
         // if (lives <= 0)

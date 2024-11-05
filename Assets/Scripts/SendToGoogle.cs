@@ -63,12 +63,12 @@ public class SendToGoogle : MonoBehaviour
         dataSent = true;
 
         maxScore = FindObjectOfType<ScoreManager>().maxScore;
-        Debug.Log("Score to send: " + score);
-        Debug.Log("Max Score to send: " + maxScore);
+        // Debug.Log("Score to send: " + score);
+        // Debug.Log("Max Score to send: " + maxScore);
 
         gamePlayTime = (int)(DateTime.Now - sessionStartTime).TotalSeconds;
 
-        Debug.Log("Sending Data: SessionID: " + sessionID + ", Score: " + score + ", MaxScore: " + maxScore + ", GamePlayTime: " + gamePlayTime);
+        // Debug.Log("Sending Data: SessionID: " + sessionID + ", Score: " + score + ", MaxScore: " + maxScore + ", GamePlayTime: " + gamePlayTime);
 
         await Post(sessionID.ToString(), score.ToString(), maxScore.ToString(), gamePlayTime.ToString()); // Call async method
 
