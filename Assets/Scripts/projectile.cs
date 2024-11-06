@@ -4,10 +4,12 @@ public class Projectile : MonoBehaviour
 {
     public float speed = 10f;
     public float lifetime = 2f;
+    private PlayerController player;
 
     void Start()
     {
         Destroy(gameObject, lifetime);
+        player = FindObjectOfType<PlayerController>();
     }
 
     void Update()
@@ -19,6 +21,7 @@ public class Projectile : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
+            player.OnEnemyKilled();
             Destroy(other.gameObject);
             Destroy(gameObject);
         }

@@ -79,13 +79,14 @@ public class PlayerController : MonoBehaviour
     public float crosshairDistance = 1f;
 
 
-    // Death reason
+    // Analytics
     private string deathReason;
     private bool fellOffPlatform = false;
     private bool collidedWithEnemy = false;
     private bool platformColorMismatch = false;
     private bool deathDataSent = false;
-
+    private int enemyKillCount = 0;
+    private float sessionStartTime;
 
     // //lives
     // public int lives = 3;
@@ -142,6 +143,11 @@ public class PlayerController : MonoBehaviour
         // UpdateLivesText();
         initialRotation = transform.rotation;
         playerRigidbody.freezeRotation = true;
+    }
+
+    public void OnEnemyKilled()
+    {
+        enemyKillCount++;
     }
 
     // void UpdateLivesText()
@@ -499,6 +505,9 @@ public class PlayerController : MonoBehaviour
         //     return;
         // }
 
+        float sessionTime = Time.time - sessionStartTime;
+        string sessionTimeString = sessionTime.ToString("F2");
+
         shadowImmunityTimerText.gameObject.SetActive(false);
         powerUpTimerText.gameObject.SetActive(false);
 
@@ -507,7 +516,7 @@ public class PlayerController : MonoBehaviour
         if (!deathDataSent)
         {
             deathDataSent = true;
-            DeathAnalytics.instance.DeathLog(collidedWithEnemy, platformColorMismatch, fellOffPlatform);
+            DeathAnalytics.instance.DeathLog(collidedWithEnemy, platformColorMismatch, fellOffPlatform, enemyKillCount, sessionTimeString);
             Debug.Log($"Death Reason in Player Control  - Enemy: {collidedWithEnemy}, Color: {platformColorMismatch}, Platform: {fellOffPlatform}");
             Debug.Log("Passed bool values to the DeathAnalytics");
 
@@ -806,6 +815,7 @@ public class PlayerController : MonoBehaviour
     // Trigger the game start
     public void StartGame()
     {
+        sessionStartTime = Time.time;
         gameStarted = true;
         playerRigidbody.simulated = true;
         startGameUI.SetActive(false);
