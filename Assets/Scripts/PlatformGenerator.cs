@@ -87,12 +87,14 @@ public class PlatformGenerator : MonoBehaviour
             platformCount++;
             platformsGenerated++;
 
-            if (platformCount % 5 == 0)
-            {
-                Color newBackgroundColor = darkBackgroundColors[Random.Range(0, darkBackgroundColors.Length)];
-                Camera.main.backgroundColor = newBackgroundColor;
-                Debug.Log("Background color changed to: " + newBackgroundColor);
-            }
+           if (platformsGenerated == 10)
+        {
+            Color newBackgroundColor = darkBackgroundColors[Random.Range(0, darkBackgroundColors.Length)];
+            Camera.main.backgroundColor = newBackgroundColor;
+            Debug.Log("Background color changed to: " + newBackgroundColor);
+
+            platformsGenerated = 0; // Reset the count after color change
+        }
            
             // newPlatform.AddComponent<PlatformMover>();
 
