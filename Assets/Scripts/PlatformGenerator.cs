@@ -5,6 +5,7 @@ using TMPro; // Make sure this is included
 
 public class PlatformGenerator : MonoBehaviour
 {
+    public GameObject seesawIndicatorPrefab;
     public bool enableCoins = false;
     public GameObject platform;
     public Transform generationPoint;
@@ -151,6 +152,17 @@ public class PlatformGenerator : MonoBehaviour
             if (enemySpawner != null)
             {
                 enemySpawner.AddPlatform(newPlatform);
+            }
+            if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw)
+            {
+                // Instantiate the seesaw indicator
+                GameObject indicator = Instantiate(seesawIndicatorPrefab, newPlatform.transform);
+                
+                // Position the indicator at the center of the platform
+                indicator.transform.localPosition = new Vector3(0f, -0.83f, 0.1f); // Adjust Y value as needed
+                
+                // You might want to scale the indicator based on the platform size
+                indicator.transform.localScale = new Vector3(0.005f, 0.05f, 0.1f) * newPlatform.transform.localScale.x;
             }
         }
     }
