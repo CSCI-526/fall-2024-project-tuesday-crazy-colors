@@ -159,10 +159,10 @@ public class PlatformGenerator : MonoBehaviour
                 GameObject indicator = Instantiate(seesawIndicatorPrefab, newPlatform.transform);
                 
                 // Position the indicator at the center of the platform
-                indicator.transform.localPosition = new Vector3(0f, -0.83f, 0.1f); // Adjust Y value as needed
+                indicator.transform.localPosition = new Vector3(0f, -1.39f, 0.1f); // Adjust Y value as needed
                 
                 // You might want to scale the indicator based on the platform size
-                indicator.transform.localScale = new Vector3(0.005f, 0.05f, 0.1f) * newPlatform.transform.localScale.x;
+                indicator.transform.localScale = new Vector3(0.00667f, 0.1f, 0.1f) * newPlatform.transform.localScale.x;
             }
         }
     }
