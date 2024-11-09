@@ -152,10 +152,7 @@ private void AssignPlatformBehavior(PlatformMover platformMover)
         case 0: // Static phase
             platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static);
             break;
-        case 1: // Static + Vertical movement phase
-            platformMover.SetBehavior(Random.value < 0.5f ? PlatformMover.PlatformBehavior.Static : PlatformMover.PlatformBehavior.MoveVertically);
-            break;
-        case 2: // Static + Vertical movement + ShrinkAndGrowHorizontally phase
+        case 1: // Static + Vertical movement + ShrinkAndGrowHorizontally phase
             int randomBehavior = Random.Range(0, 3);
             switch (randomBehavior)
             {
@@ -170,7 +167,7 @@ private void AssignPlatformBehavior(PlatformMover platformMover)
                     break;
             }
             break;
-        case 3: // All types combined (including SeeSaw)
+        case 2: // All types combined (including SeeSaw)
             randomBehavior = Random.Range(0, 4);
             platformMover.SetBehavior((PlatformMover.PlatformBehavior)randomBehavior);
             break;
@@ -180,14 +177,15 @@ private void AssignPlatformBehavior(PlatformMover platformMover)
             break;
     }
 }
+
 private void UpdatePlatformPhase()
 {
     if (platformCount % 4 == 0)
     {
         platformPhase++;
-        if (platformPhase > 3)
+        if (platformPhase > 2)
         {
-            platformPhase = 4; // Stay in the "all types" phase
+            platformPhase = 3; // Stay in the "all types" phase
         }
     }
 }
