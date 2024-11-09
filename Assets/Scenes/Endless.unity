@@ -1434,6 +1434,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 416987a101c53d5428f5589e9ccccf75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  seesawIndicatorPrefab: {fileID: 447423024453338894, guid: 9ebaa9f5be80640ee8d55f085e6a05cd, type: 3}
   enableCoins: 0
   platform: {fileID: 8882925520037461098, guid: 479ea1966f4588746a33792bede9dd36, type: 3}
   generationPoint: {fileID: 1407376363}
