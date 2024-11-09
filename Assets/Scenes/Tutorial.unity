@@ -5909,7 +5909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c0e19817b1434344b0fcd0ccaca2bec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 10
+  moveSpeed: 7
   fallThreshold: -12
   fallCheckDelay: 0.5
   jumpForce: 25
