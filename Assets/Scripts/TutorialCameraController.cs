@@ -16,7 +16,7 @@ public class TutorialCameraController : MonoBehaviour
         }
     }
 
-    void LateUpdate()
+    void FixedUpdate()
     {
         if (player != null) 
         {

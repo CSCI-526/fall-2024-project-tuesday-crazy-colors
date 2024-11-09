@@ -1,3 +1,5 @@
+
+
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -32,8 +34,8 @@ public class EnemySpawner : MonoBehaviour
             spawnTimer = currentSpawnInterval;
         }
 
-        // Gradually decrease spawn interval
-        currentSpawnInterval = Mathf.Max(initialSpawnInterval * 0.5f, initialSpawnInterval - (scoreManager.score * 0.01f));
+        // Gradually decrease spawn interval with a limit
+        currentSpawnInterval = Mathf.Max(initialSpawnInterval * 0.75f, initialSpawnInterval - (scoreManager.score * 0.005f));
     }
 
     void SpawnEnemies()
@@ -88,7 +90,8 @@ public class EnemySpawner : MonoBehaviour
             return -1;
         }
 
-        int startIndex = Mathf.Max(playerPlatformIndex + 2, lastSpawnedPlatformIndex + 1);
+        // Ensure enemies spawn farther ahead of the player (e.g., 3 platforms ahead)
+        int startIndex = Mathf.Max(playerPlatformIndex + 3, lastSpawnedPlatformIndex + 1);
         for (int i = startIndex; i < platforms.Count; i++)
         {
             if (platforms[i] != null)
