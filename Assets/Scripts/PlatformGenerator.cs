@@ -5,6 +5,8 @@ using TMPro; // Make sure this is included
 
 public class PlatformGenerator : MonoBehaviour
 {
+    private int platformCount = 0;
+    private int platformPhase = 0;
     public GameObject seesawIndicatorPrefab;
     public bool enableCoins = false;
     public GameObject platform;
@@ -17,7 +19,6 @@ public class PlatformGenerator : MonoBehaviour
     public GameObject whitePowerUpPrefab;
     public GameObject blackPowerUpPrefab;
     public int powerUpInterval; 
-    private int platformCount = 0;
 
      // Coin
     public GameObject coinPrefab;
@@ -78,98 +79,129 @@ public class PlatformGenerator : MonoBehaviour
         {
             float verticalOffset = Random.Range(-verticalOffsetRange, verticalOffsetRange);
             transform.position = new Vector3(transform.position.x + platformWidth + distanceBetween, transform.position.y + verticalOffset, transform.position.z);
-            Debug.Log("Generating platform number: " + (platformCount + 1));
+            
             GameObject newPlatform = Instantiate(platform, transform.position, transform.rotation);
             newPlatform.tag = "Platform";
 
             Renderer platformRenderer = newPlatform.GetComponent<Renderer>();
             platformRenderer.material.color = platformColors[Random.Range(0, platformColors.Length)];
             
+            PlatformMover platformMover = newPlatform.AddComponent<PlatformMover>();
+
+            // Assign behavior based on the current phase
+            AssignPlatformBehavior(platformMover);
+
             platformCount++;
             platformsGenerated++;
 
-           if (platformsGenerated == 10)
-        {
-            Color newBackgroundColor = darkBackgroundColors[Random.Range(0, darkBackgroundColors.Length)];
-            Camera.main.backgroundColor = newBackgroundColor;
-            Debug.Log("Background color changed to: " + newBackgroundColor);
-
-            platformsGenerated = 0; // Reset the count after color change
-        }
-           
-            // newPlatform.AddComponent<PlatformMover>();
-
-             PlatformMover platformMover = newPlatform.AddComponent<PlatformMover>();
-
-            // Assign behavior based on platform count
-            if (platformCount < 5)
+            // Background color change logic
+            if (platformsGenerated == 10)
             {
-                platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static);
-                Debug.Log("Platform is Static.");
-            }
-            else if (platformCount < 35)
-            {
-                int randomBehavior = Random.Range(0, 4); // Randomly pick between Static, MoveVertically, and ShrinkAndGrowHorizontally & seesaw
-                platformMover.SetBehavior((PlatformMover.PlatformBehavior)randomBehavior);
-                Debug.Log("Platform behavior assigned: " + ((PlatformMover.PlatformBehavior)randomBehavior).ToString());
-            }
-            else
-            {
-                platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static); // Reset to static if needed
-                Debug.Log("Platform is Static.");
+                Color newBackgroundColor = darkBackgroundColors[Random.Range(0, darkBackgroundColors.Length)];
+                Camera.main.backgroundColor = newBackgroundColor;
+                Debug.Log("Background color changed to: " + newBackgroundColor);
+                platformsGenerated = 0;
             }
 
-            platformCount++; // Increment platform count
-
+            // Power-up and coin generation logic
             if (PlayerPrefs.GetInt("coins", 0) > 20 && platformCount >= powerUpInterval)
             {
-                platformCount = 0; 
+                platformCount = 0;
                 GameObject powerUpToSpawn = Random.value < 0.5f ? whitePowerUpPrefab : blackPowerUpPrefab;
                 Instantiate(powerUpToSpawn, newPlatform.transform.position + Vector3.up, Quaternion.identity);
 
-                // Display the text for white power-up only if it's the first occurrence
+                // Display power-up text
                 if (powerUpToSpawn == whitePowerUpPrefab && !whitePowerUpShown)
                 {
                     powerUpLabel.text = "White Power-Up Ahead!\nCollect to Land freely without changing color!";
-                    whitePowerUpShown = true; // Mark as shown
+                    whitePowerUpShown = true;
                     StartCoroutine(ResetLabel());
                 }
-                // Display the text for black power-up only if it's the first occurrence
                 else if (powerUpToSpawn == blackPowerUpPrefab && !blackPowerUpShown)
                 {
                     powerUpLabel.text = "Black Power-Up Ahead!\nCollect to get protection from the shadow's grasp!";
-                    blackPowerUpShown = true; // Mark as shown
+                    blackPowerUpShown = true;
                     StartCoroutine(ResetLabel());
                 }
             }
-            else
+            else if (enableCoins)
             {
-                if (enableCoins)
-                {
-                    Instantiate(coinPrefab, newPlatform.transform.position + Vector3.up * 1.5f, Quaternion.identity);
-                }
+                Instantiate(coinPrefab, newPlatform.transform.position + Vector3.up * 1.5f, Quaternion.identity);
             }
+
             if (enemySpawner != null)
             {
                 enemySpawner.AddPlatform(newPlatform);
             }
+
+            // Add seesaw indicator if applicable
             if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw)
             {
-                // Instantiate the seesaw indicator
-                GameObject indicator = Instantiate(seesawIndicatorPrefab, newPlatform.transform);
-                
-                // Position the indicator at the center of the platform
-                indicator.transform.localPosition = new Vector3(0f, -1.39f, 0.1f); // Adjust Y value as needed
-                
-                // You might want to scale the indicator based on the platform size
-                indicator.transform.localScale = new Vector3(0.00667f, 0.1f, 0.1f) * newPlatform.transform.localScale.x;
+                AddSeesawIndicator(newPlatform);
             }
+
+            // Update the platform phase
+            UpdatePlatformPhase();
         }
+    }
+
+private void AssignPlatformBehavior(PlatformMover platformMover)
+{
+    switch (platformPhase)
+    {
+        case 0: // Static phase
+            platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static);
+            break;
+        case 1: // Static + Vertical movement phase
+            platformMover.SetBehavior(Random.value < 0.5f ? PlatformMover.PlatformBehavior.Static : PlatformMover.PlatformBehavior.MoveVertically);
+            break;
+        case 2: // Static + Vertical movement + ShrinkAndGrowHorizontally phase
+            int randomBehavior = Random.Range(0, 3);
+            switch (randomBehavior)
+            {
+                case 0:
+                    platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static);
+                    break;
+                case 1:
+                    platformMover.SetBehavior(PlatformMover.PlatformBehavior.MoveVertically);
+                    break;
+                case 2:
+                    platformMover.SetBehavior(PlatformMover.PlatformBehavior.ShrinkAndGrowHorizontally);
+                    break;
+            }
+            break;
+        case 3: // All types combined (including SeeSaw)
+            randomBehavior = Random.Range(0, 4);
+            platformMover.SetBehavior((PlatformMover.PlatformBehavior)randomBehavior);
+            break;
+        default: // All types combined (including SeeSaw)
+            randomBehavior = Random.Range(0, 4);
+            platformMover.SetBehavior((PlatformMover.PlatformBehavior)randomBehavior);
+            break;
+    }
+}
+private void UpdatePlatformPhase()
+{
+    if (platformCount % 4 == 0)
+    {
+        platformPhase++;
+        if (platformPhase > 3)
+        {
+            platformPhase = 4; // Stay in the "all types" phase
+        }
+    }
+}
+
+    private void AddSeesawIndicator(GameObject platform)
+    {
+        GameObject indicator = Instantiate(seesawIndicatorPrefab, platform.transform);
+        indicator.transform.localPosition = new Vector3(0f, -1.39f, 0.1f);
+        indicator.transform.localScale = new Vector3(0.00667f, 0.1f, 0.1f) * platform.transform.localScale.x;
     }
 
     private IEnumerator ResetLabel()
     {
-        yield return new WaitForSeconds(5f); 
-        powerUpLabel.text = ""; // Clear the label after the delay
+        yield return new WaitForSeconds(5f);
+        powerUpLabel.text = "";
     }
 }
