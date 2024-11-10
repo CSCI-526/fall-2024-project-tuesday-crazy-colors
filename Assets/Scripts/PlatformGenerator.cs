@@ -70,6 +70,8 @@ public class PlatformGenerator : MonoBehaviour
         powerUpLabel.text = "";
     }
 
+    public PlatformMessageDisplay messageDisplay; 
+
     // Update is called once per frame
     void Update()
     {
@@ -93,6 +95,7 @@ public class PlatformGenerator : MonoBehaviour
 
             platformCount++;
             platformsGenerated++;
+            messageDisplay.PlatformGenerated();
 
             // Background color change logic
             if (platformsGenerated == 10)
