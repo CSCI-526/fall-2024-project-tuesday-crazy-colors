@@ -12,9 +12,7 @@ public class DeathAnalytics : MonoBehaviour
     private bool deathEnemy;
     private bool deathColor;
     private bool deathPlatform;
-    private bool canLogDeath = true;
     private float cooldownTime = 10f; // Adjust the cooldown duration as needed
-    private bool hasLoggedDeath = false; // New flag for logging
 
     void Awake()
     {
@@ -33,17 +31,6 @@ public class DeathAnalytics : MonoBehaviour
 
     public async void DeathLog(bool diedFromEnemy, bool diedFromColor, bool diedFromPlatform, int enemyKillCount, string sessionTime)
     {
-        if (!canLogDeath) return; // Prevent logging if not allowed
-
-        if (hasLoggedDeath) 
-        {
-            Debug.Log("Death log already recorded. Waiting for cooldown.");
-            return; // Prevent logging if already logged
-        }
-
-        hasLoggedDeath = true; // Mark as logged
-
-        canLogDeath = false; // Lock logging
         deathEnemy = diedFromEnemy;
         deathColor = diedFromColor;
         deathPlatform = diedFromPlatform;
@@ -54,14 +41,7 @@ public class DeathAnalytics : MonoBehaviour
 
         // Start cooldown
         await Task.Delay(TimeSpan.FromSeconds(cooldownTime));
-        canLogDeath = true; // Re-enable logging after cooldown
-        hasLoggedDeath = false; // Reset logging status for future logs
         Debug.Log("Cooldown completed, ready to log death again.");
-    }
-
-    public void ResetLogging()
-    {
-        hasLoggedDeath = false;
     }
 
     // public async void DeathLog(bool diedFromEnemy, bool diedFromColor, bool diedFromPlatform) //call this function somewhere
