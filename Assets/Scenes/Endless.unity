@@ -1441,7 +1441,7 @@ MonoBehaviour:
   generationPoint: {fileID: 1407376363}
   distanceBetween: 5
   distanceBetweenMin: 5
-  distanceBetweenMax: 15
+  distanceBetweenMax: 10
   whitePowerUpPrefab: {fileID: 433433514180583560, guid: 088f0b77b6ee14d47848ae2068f1a74b, type: 3}
   blackPowerUpPrefab: {fileID: 1584441401532526543, guid: e09234002c7d543de98407b978a06536, type: 3}
   powerUpInterval: 10
