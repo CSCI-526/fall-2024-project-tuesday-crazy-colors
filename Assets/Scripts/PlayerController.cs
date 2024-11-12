@@ -87,6 +87,13 @@ public class PlayerController : MonoBehaviour
     private bool deathDataSent = false;
     private int enemyKillCount = 0;
     private float sessionStartTime;
+    private string lastPlatformType = "Neutral";
+    private string secondLastPlatformType = "Neutral";
+    // private float colorSwitchStartTime;
+    // private float colorSwitchEndTime;
+    // private float colorSwitchDurationSum = 0f;
+    // private int colorSwitchDurationCount = 0;
+    // private float colorSwitchDurationAverage = 0f;
 
     //lives
     public int lives = 3;
@@ -515,7 +522,9 @@ public class PlayerController : MonoBehaviour
         if (!deathDataSent)
         {
             deathDataSent = true;
-            DeathAnalytics.instance.DeathLog(collidedWithEnemy, platformColorMismatch, fellOffPlatform, enemyKillCount, sessionTimeString);
+            DeathAnalytics.instance.DeathLog(collidedWithEnemy, platformColorMismatch, fellOffPlatform, enemyKillCount, sessionTimeString, lastPlatformType, secondLastPlatformType);
+            Debug.Log("Last Platform Type: " + lastPlatformType);
+            Debug.Log("Second Last Platform Type: " + secondLastPlatformType);
             Debug.Log($"Death Reason in Player Control  - Enemy: {collidedWithEnemy}, Color: {platformColorMismatch}, Platform: {fellOffPlatform}");
             Debug.Log("Passed bool values to the DeathAnalytics");
 
@@ -709,6 +718,23 @@ public class PlayerController : MonoBehaviour
             currentPlatform = collision.gameObject;
             platformLastPosition = currentPlatform.transform.position;
             Color platformColor = collision.gameObject.GetComponent<Renderer>().material.color;
+            
+            PlatformMover platformMover = currentPlatform.GetComponent<PlatformMover>();
+
+            if (platformMover != null) {
+                secondLastPlatformType = lastPlatformType;
+                if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw) {
+                    lastPlatformType = "See Saw";
+                } else if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.Static) {
+                    lastPlatformType = "Static";
+                } else if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.MoveVertically) {
+                    lastPlatformType = "Vertically Moving";
+                } else if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.ShrinkAndGrowHorizontally) {
+                    lastPlatformType = "Shrinking";
+                } else {
+                    lastPlatformType = "Neutral";
+                }
+            }
 
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
@@ -720,8 +746,6 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                PlatformMover platformMover = currentPlatform.GetComponent<PlatformMover>();
-
                 // Check if the platform has a rotating behavior (SeeSaw)
                 if (platformMover != null && platformMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw)
                 {
