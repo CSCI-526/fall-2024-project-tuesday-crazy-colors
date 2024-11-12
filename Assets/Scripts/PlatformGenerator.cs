@@ -113,7 +113,7 @@ public class PlatformGenerator : MonoBehaviour
                 // Display power-up text
                 if (powerUpToSpawn == whitePowerUpPrefab && !whitePowerUpShown)
                 {
-                    powerUpLabel.text = "White Power-Up Ahead!\nCollect to Land freely without changing color!";
+                    // powerUpLabel.text = "White Power-Up Ahead!\nCollect to Land freely without changing color!";
                     whitePowerUpShown = true;
                     StartCoroutine(ResetLabel());
                 }
