@@ -103,11 +103,11 @@ public class PlatformGenerator : MonoBehaviour
                 platformsGenerated = 0;
             }
 
-            // Power-up and coin generation logic
-            if (PlayerPrefs.GetInt("coins", 0) > 20 && platformCount >= powerUpInterval)
+            // Power-up generation logic
+            if (platformCount >= powerUpInterval)
             {
                 platformCount = 0;
-                GameObject powerUpToSpawn = Random.value < 0.5f ? whitePowerUpPrefab : blackPowerUpPrefab;
+                GameObject powerUpToSpawn = whitePowerUpPrefab;
                 Instantiate(powerUpToSpawn, newPlatform.transform.position + Vector3.up, Quaternion.identity);
 
                 // Display power-up text
@@ -117,16 +117,6 @@ public class PlatformGenerator : MonoBehaviour
                     whitePowerUpShown = true;
                     StartCoroutine(ResetLabel());
                 }
-                else if (powerUpToSpawn == blackPowerUpPrefab && !blackPowerUpShown)
-                {
-                    powerUpLabel.text = "Black Power-Up Ahead!\nCollect to get protection from the shadow's grasp!";
-                    blackPowerUpShown = true;
-                    StartCoroutine(ResetLabel());
-                }
-            }
-            else if (enableCoins)
-            {
-                Instantiate(coinPrefab, newPlatform.transform.position + Vector3.up * 1.5f, Quaternion.identity);
             }
 
             if (enemySpawner != null)

@@ -853,6 +853,8 @@ public class PlayerController : MonoBehaviour
 
     public void RetryGame()
     {
+        scoreManager.score = 0;
+        scoreManager.UpdateScoreText();
         SendToGoogle googleInstance = SendToGoogle.Instance;
         if (googleInstance != null)
         {

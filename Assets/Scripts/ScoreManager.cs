@@ -34,8 +34,6 @@ public class ScoreManager : MonoBehaviour
     public void SaveScore()
     {
         lastScore = score; // Store the current score
-        score = 0; 
-        UpdateScoreText(); // Update the displayed score
     }
 
     // public void ResetScore()
