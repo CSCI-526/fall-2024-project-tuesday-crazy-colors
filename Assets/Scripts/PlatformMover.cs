@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class PlatformMover : MonoBehaviour
 {
-    public enum PlatformBehavior { Static, MoveVertically, ShrinkAndGrowHorizontally, SeeSaw }
-    private PlatformBehavior platformBehavior;
+    public enum PlatformBehavior { Static, MoveVertically, ShrinkAndGrowHorizontally, SeeSaw, TutorialSeeSaw }
+    public PlatformBehavior platformBehavior;
 
     public float rotationSpeed = 1.0f; // Rotation speed for see-saw
-    private float targetRotation; // Target angle for see-saw rotation
+    public float targetRotation; // Target angle for see-saw rotation
 
     private float moveSpeed;
     private float initialYPosition;
@@ -66,7 +66,7 @@ public class PlatformMover : MonoBehaviour
         float scaleX = initialScale.x + Mathf.Sin(Time.time * shrinkGrowSpeed) * (initialScale.x - 2.0f) / 2.0f;
         transform.localScale = new Vector3(Mathf.Clamp(scaleX, 2.0f, initialScale.x), initialScale.y, initialScale.z);
     }
-    private float currentRotation;
+    public float currentRotation;
     private void ApplySeeSawRotation()
     {
         currentRotation = Mathf.LerpAngle(currentRotation, targetRotation, Time.deltaTime * rotationSpeed);
