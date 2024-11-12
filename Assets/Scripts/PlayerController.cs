@@ -450,7 +450,7 @@ public class PlayerController : MonoBehaviour
 
         while (remainingTime > 0)
         {
-            powerUpTimerText.text = "Color Invincible for " + remainingTime.ToString("F1") + " secs";
+            powerUpTimerText.text = "Player Invincible for " + remainingTime.ToString("F1") + " secs";
 
             // Start blinking effect when there are 3 seconds left
             if (remainingTime <= 3f && !isBlinking)
