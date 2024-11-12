@@ -29,7 +29,7 @@ public class DeathAnalytics : MonoBehaviour
     }
 
 
-    public async void DeathLog(bool diedFromEnemy, bool diedFromColor, bool diedFromPlatform, int enemyKillCount, string sessionTime)
+    public async void DeathLog(bool diedFromEnemy, bool diedFromColor, bool diedFromPlatform, int enemyKillCount, string sessionTime, string lastPlatformType, string secondLastPlatformType)
     {
         deathEnemy = diedFromEnemy;
         deathColor = diedFromColor;
@@ -37,7 +37,7 @@ public class DeathAnalytics : MonoBehaviour
 
         Debug.Log($"Death Analytics - Enemy: {deathEnemy}, Color: {deathColor}, Platform: {deathPlatform}");
 
-        await Post(sessionID.ToString(), deathColor.ToString(), deathEnemy.ToString(), deathPlatform.ToString(), enemyKillCount.ToString(), sessionTime);
+        await Post(sessionID.ToString(), deathColor.ToString(), deathEnemy.ToString(), deathPlatform.ToString(), enemyKillCount.ToString(), sessionTime, lastPlatformType, secondLastPlatformType);
 
         // Start cooldown
         await Task.Delay(TimeSpan.FromSeconds(cooldownTime));
@@ -55,10 +55,10 @@ public class DeathAnalytics : MonoBehaviour
 
     //     Debug.Log($"Death Analytics - Enemy: {deathEnemy}, Color: {deathColor}, Platform: {deathPlatform}");
 
-    //     Post(sessionID.ToString(), deathColor.ToString(), deathEnemy.ToString(), deathPlatform.ToString(), enemyKillCount.ToString(), sessionTime);
+    //     Post(sessionID.ToString(), deathColor.ToString(), deathEnemy.ToString(), deathPlatform.ToString(), enemyKillCount.ToString(), sessionTime, lastPlatformType, secondLastPlatformType);
     // }
 
-    private async Task Post(string sessionID, string deathColor, string deathEnemy, string deathPlatform, string enemyKillCount, string sessionTime)
+    private async Task Post(string sessionID, string deathColor, string deathEnemy, string deathPlatform, string enemyKillCount, string sessionTime, string lastPlatformType, string secondLastPlatformType)
     {
         Debug.Log($"Enemies Killed: {enemyKillCount}");
         Debug.Log($"Session Time: {sessionTime}");
@@ -72,6 +72,8 @@ public class DeathAnalytics : MonoBehaviour
         form.AddField("entry.1151262886", deathPlatform);
         form.AddField("entry.1366656562", enemyKillCount.ToString());
         form.AddField("entry.2061567090", sessionTime.ToString());
+        form.AddField("entry.962285678", lastPlatformType);
+        form.AddField("entry.1339815015", secondLastPlatformType);
 
         using (UnityWebRequest www = UnityWebRequest.Post(url, form))
         {
@@ -88,7 +90,7 @@ public class DeathAnalytics : MonoBehaviour
                 {
                     Debug.Log("Received 429 error. Retrying after delay...");
                     await Task.Delay(10000); // Wait for 10 seconds
-                    await Post(sessionID, deathColor, deathEnemy, deathPlatform, enemyKillCount, sessionTime); // Retry sending
+                    await Post(sessionID, deathColor, deathEnemy, deathPlatform, enemyKillCount, sessionTime, lastPlatformType, secondLastPlatformType); // Retry sending
                 }
                 else
                 {
