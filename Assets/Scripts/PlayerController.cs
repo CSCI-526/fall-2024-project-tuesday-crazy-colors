@@ -88,11 +88,12 @@ public class PlayerController : MonoBehaviour
     private int enemyKillCount = 0;
     private float sessionStartTime;
 
-    // //lives
-    // public int lives = 3;
-    // public Text livesText;
-    // private Vector3 startPosition;
-    // private Vector3 respawnPosition;
+    //lives
+    public int lives = 3;
+    public Text livesText;
+    private Vector3 startPosition;
+    private Vector3 respawnPosition;
+    public GameObject deathMessageUI;
 
     // Start is called before the first frame update
     void Start()
@@ -137,10 +138,10 @@ public class PlayerController : MonoBehaviour
         coins = PlayerPrefs.GetInt("coins", 0);
         UpdateCoinText();
 
-        // //lives
-        // startPosition = transform.position;
-        // respawnPosition = startPosition;
-        // UpdateLivesText();
+        //lives
+        startPosition = transform.position;
+        respawnPosition = startPosition;
+        UpdateLivesText();
         initialRotation = transform.rotation;
         playerRigidbody.freezeRotation = true;
     }
@@ -150,13 +151,13 @@ public class PlayerController : MonoBehaviour
         enemyKillCount++;
     }
 
-    // void UpdateLivesText()
-    // {
-    //     if (livesText != null)
-    //     {
-    //         livesText.text = "Lives: " + lives;
-    //     }
-    // }
+    void UpdateLivesText()
+    {
+        if (livesText != null)
+        {
+            livesText.text = "Lives: " + lives;
+        }
+    }
 
     // Update is called once per frame
 
@@ -212,9 +213,9 @@ public class PlayerController : MonoBehaviour
             Color platformColor = currentPlatform.GetComponent<Renderer>().material.color;
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
-                // EndGame("fall");
+                EndGame("fall");
 
-                EndGame();
+                // EndGame();
                 return;
             }
         }
@@ -238,10 +239,10 @@ public class PlayerController : MonoBehaviour
 
         if (transform.position.y < fallThreshold && fallCheckTimer > fallCheckDelay)
         {
-            // EndGame("fall");
             fellOffPlatform = true;
             Debug.Log(fellOffPlatform);
-            EndGame();
+            EndGame("fall");
+            // EndGame();
             Debug.Log("Game Over! Player missed the next Platform.");
             fallCheckTimer = 0f;
             return;
@@ -355,7 +356,8 @@ public class PlayerController : MonoBehaviour
             {
                 collidedWithEnemy = true;
                 Debug.Log(collidedWithEnemy);
-                EndGame();
+                EndGame("enemy");
+                // EndGame();
                 Debug.Log("Game Over! Player collided with an enemy.");
             }
             else
@@ -475,35 +477,32 @@ public class PlayerController : MonoBehaviour
     }
 
     // Override EndGame temporarily for invincibility
-    // void EndGame(string deathReason)
-    void EndGame()
+    void EndGame(string deathReason)
+    // void EndGame()
     {
-        // lives--;
-        // UpdateLivesText();
+        lives--;
+        UpdateLivesText();
 
-        // if (lives > 0)
-        // {
-        //     switch (deathReason)
-        //     {
-        //         case "fall":
-        //             respawnPosition = transform.position;
-        //             respawnPosition.y = fallThreshold + 5f; // Adjust this value as needed
-        //             break;
-        //         case "shadow":
-        //         case "color":
-        //             respawnPosition = currentPlatform.transform.position;
-        //             respawnPosition.y += 1f; // Adjust this value to spawn slightly above the platform
-        //             break;
-        //     }
+        if (lives > 0 && deathReason != "fall")
+        {
+            switch (deathReason)
+            {
+                case "enemy":
+                case "color":
+                    respawnPosition = currentPlatform.transform.position;
+                    respawnPosition.y += 1f; // Adjust this value to spawn slightly above the platform
+                    break;
+            }
 
-        //     if (deathReason == "color" || deathReason == "shadow")
-        //     {
-        //         spriteRenderer.color = currentPlatform.GetComponent<Renderer>().material.color;
-        //     }
+            if (deathReason == "color" || deathReason == "enemy")
+            {
+                spriteRenderer.color = currentPlatform.GetComponent<Renderer>().material.color;
+            }
 
-        //     ResetPlayerPosition(respawnPosition);
-        //     return;
-        // }
+            ResetPlayerPosition(respawnPosition);
+            return;
+        }
+
 
         float sessionTime = Time.time - sessionStartTime;
         string sessionTimeString = sessionTime.ToString("F2");
@@ -613,6 +612,61 @@ public class PlayerController : MonoBehaviour
     //     }
     // }
 
+
+    void ResetPlayerPosition(Vector3 resetPosition)
+    {
+        
+        transform.position = resetPosition;
+
+        playerRigidbody.velocity = Vector2.zero;
+        playerRigidbody.angularVelocity = 0f;
+    
+        currentPlatform = null;
+        isOnSeeSaw = false;
+        isOnSeesaw = false;
+
+        transform.SetParent(null);
+        transform.rotation = initialRotation;
+
+        StopAllCoroutines();
+
+        canJumpOnAnyPlatform = false;
+        isShadowImmune = false;
+        powerUpActive = false;
+        shadowImmunityActive = false;
+
+        SetPlayerOpacity(1f);
+
+        if (powerUpTimerText != null)
+            powerUpTimerText.text = "";
+        if (shadowImmunityTimerText != null)
+            shadowImmunityTimerText.text = "";
+
+        spriteRenderer.enabled = true;
+        playerRigidbody.simulated = true;
+        playerCollider.enabled = true;
+
+        if (shadow != null)
+        {
+            shadow.SetActive(true);
+            if (shadowCollider != null)
+                shadowCollider.enabled = true;
+        }
+        if (crosshair == null)
+        {
+            crosshair = Instantiate(crosshairPrefab, transform.position, Quaternion.identity);
+        }
+
+        recordedPositions.Clear();
+
+        // Reset any other game-specific variables as needed
+        // For example:
+        // fallCheckTimer = 0f;
+        // shadowStartTimer = 0f;
+        // shadowStarted = false;
+    }
+
+
     void ChangeColorAscending()
     {
         currentColorIndex = (currentColorIndex + 1) % colorOrder.Length;
@@ -658,12 +712,10 @@ public class PlayerController : MonoBehaviour
 
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
-                // EndGame("color");
-
-
                 platformColorMismatch = true;
                 Debug.Log(platformColorMismatch);
-                EndGame();
+                EndGame("color");
+                // EndGame();
                 Debug.Log("Game Over! Player landed on a different color platform.");
             }
             else
@@ -707,8 +759,8 @@ public class PlayerController : MonoBehaviour
         {
             if (!isShadowImmune)
             {
-                // EndGame("shadow");
-                EndGame();
+                EndGame("shadow");
+                // EndGame();
                 Debug.Log("Game Over! Shadow collided with the player.");
             }
             else
