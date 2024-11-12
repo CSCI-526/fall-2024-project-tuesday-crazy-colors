@@ -8,6 +8,7 @@ public class ScoreManager : MonoBehaviour
     public int score = 0;
     public int maxScore = 0;
     public Text scoreText;
+    public Text scoreText1;
     public int lastScore = 0;
 
     // Start is called before the first frame update
@@ -20,6 +21,7 @@ public class ScoreManager : MonoBehaviour
     public void UpdateScoreText()
     {
         scoreText.text = "Score: " + score.ToString() + "\n" + "Max Score: " + maxScore.ToString();
+        scoreText1.text = "Score: " + score.ToString() + "\n" + "Max Score: " + maxScore.ToString();
         // Debug.Log("Current Score: " + score);
         // Debug.Log("Max Score: " + maxScore);
 
@@ -27,6 +29,7 @@ public class ScoreManager : MonoBehaviour
         {
             maxScore = score;
             scoreText.text = "Score: " + score.ToString() + "\n" + "Max Score: " + maxScore.ToString();
+            scoreText1.text = "Score: " + score.ToString() + "\n" + "Max Score: " + maxScore.ToString();
             PlayerPrefs.SetInt("MaxScore", maxScore);
         }
     }
@@ -34,6 +37,7 @@ public class ScoreManager : MonoBehaviour
     public void SaveScore()
     {
         lastScore = score; // Store the current score
+        UpdateScoreText();
     }
 
     // public void ResetScore()

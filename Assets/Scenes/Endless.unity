@@ -2075,7 +2075,7 @@ GameObject:
   - component: {fileID: 650862986}
   - component: {fileID: 650862985}
   m_Layer: 5
-  m_Name: ScoreDisplay (1)
+  m_Name: ScoreDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2098,8 +2098,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 550, y: 329}
-  m_SizeDelta: {x: 1919.9999, y: 1148.509}
+  m_AnchoredPosition: {x: 557, y: 494.96606}
+  m_SizeDelta: {x: 613.1237, y: 160.7857}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &650862985
 MonoBehaviour:
@@ -2115,7 +2115,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   score: 0
   maxScore: 0
-  scoreText: {fileID: 1370395417}
+  scoreText: {fileID: 2037958090}
+  scoreText1: {fileID: 1370395417}
   lastScore: 0
 --- !u!114 &650862986
 MonoBehaviour:
@@ -2731,6 +2732,7 @@ MonoBehaviour:
   score: 0
   maxScore: 0
   scoreText: {fileID: 2037958090}
+  scoreText1: {fileID: 1370395417}
   lastScore: 0
 --- !u!114 &1134812731
 MonoBehaviour:
@@ -3749,7 +3751,7 @@ GameObject:
   - component: {fileID: 1370395418}
   - component: {fileID: 1370395417}
   m_Layer: 5
-  m_Name: ScoreText (TMP)
+  m_Name: ScoreText1 (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3771,7 +3773,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 14, y: -217}
+  m_AnchoredPosition: {x: 0.000035286, y: -80.393}
   m_SizeDelta: {x: 200, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1370395417
@@ -4402,6 +4404,7 @@ MonoBehaviour:
   score: 0
   maxScore: 0
   scoreText: {fileID: 2037958090}
+  scoreText1: {fileID: 1370395417}
   lastScore: 0
 --- !u!4 &1557162174
 Transform:
