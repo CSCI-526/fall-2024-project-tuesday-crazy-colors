@@ -213,9 +213,9 @@ public class PlayerController : MonoBehaviour
             Color platformColor = currentPlatform.GetComponent<Renderer>().material.color;
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
-                EndGame("fall");
+                EndGame("color");
 
-                // EndGame();
+                // EndGame("");
                 return;
             }
         }
@@ -480,8 +480,11 @@ public class PlayerController : MonoBehaviour
     void EndGame(string deathReason)
     // void EndGame()
     {
-        lives--;
-        UpdateLivesText();
+        
+        if (lives > 0) {
+            lives--;
+            UpdateLivesText();
+        }
 
         if (lives > 0 && deathReason != "fall")
         {
