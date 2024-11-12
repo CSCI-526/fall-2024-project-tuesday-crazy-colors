@@ -95,12 +95,12 @@ public class PlayerController : MonoBehaviour
     // private int colorSwitchDurationCount = 0;
     // private float colorSwitchDurationAverage = 0f;
 
-    //lives
-    public int lives = 3;
-    public Text livesText;
-    private Vector3 startPosition;
-    private Vector3 respawnPosition;
-    public GameObject deathMessageUI;
+    // //lives
+    // public int lives = 3;
+    // public Text livesText;
+    // private Vector3 startPosition;
+    // private Vector3 respawnPosition;
+    // public GameObject deathMessageUI;
 
     // Start is called before the first frame update
     void Start()
@@ -145,12 +145,12 @@ public class PlayerController : MonoBehaviour
         coins = PlayerPrefs.GetInt("coins", 0);
         UpdateCoinText();
 
-        //lives
-        startPosition = transform.position;
-        respawnPosition = startPosition;
-        UpdateLivesText();
-        initialRotation = transform.rotation;
-        playerRigidbody.freezeRotation = true;
+        // //lives
+        // startPosition = transform.position;
+        // respawnPosition = startPosition;
+        // UpdateLivesText();
+        // initialRotation = transform.rotation;
+        // playerRigidbody.freezeRotation = true;
     }
 
     public void OnEnemyKilled()
@@ -158,13 +158,13 @@ public class PlayerController : MonoBehaviour
         enemyKillCount++;
     }
 
-    void UpdateLivesText()
-    {
-        if (livesText != null)
-        {
-            livesText.text = "Lives: " + lives;
-        }
-    }
+    // void UpdateLivesText()
+    // {
+    //     if (livesText != null)
+    //     {
+    //         livesText.text = "Lives: " + lives;
+    //     }
+    // }
 
     // Update is called once per frame
 
@@ -220,9 +220,9 @@ public class PlayerController : MonoBehaviour
             Color platformColor = currentPlatform.GetComponent<Renderer>().material.color;
             if (spriteRenderer.color != platformColor && !canJumpOnAnyPlatform)
             {
-                EndGame("color");
+                // EndGame("color");
 
-                // EndGame("");
+                EndGame();
                 return;
             }
         }
@@ -248,8 +248,8 @@ public class PlayerController : MonoBehaviour
         {
             fellOffPlatform = true;
             Debug.Log(fellOffPlatform);
-            EndGame("fall");
-            // EndGame();
+            // EndGame("fall");
+            EndGame();
             Debug.Log("Game Over! Player missed the next Platform.");
             fallCheckTimer = 0f;
             return;
@@ -363,8 +363,8 @@ public class PlayerController : MonoBehaviour
             {
                 collidedWithEnemy = true;
                 Debug.Log(collidedWithEnemy);
-                EndGame("enemy");
-                // EndGame();
+                // EndGame("enemy");
+                EndGame();
                 Debug.Log("Game Over! Player collided with an enemy.");
             }
             else
@@ -484,34 +484,34 @@ public class PlayerController : MonoBehaviour
     }
 
     // Override EndGame temporarily for invincibility
-    void EndGame(string deathReason)
-    // void EndGame()
+    // void EndGame(string deathReason)
+    void EndGame()
     {
         
-        if (lives > 0) {
-            lives--;
-            UpdateLivesText();
-        }
+        // if (lives > 0) {
+        //     lives--;
+        //     UpdateLivesText();
+        // }
 
-        if (lives > 0 && deathReason != "fall")
-        {
-            switch (deathReason)
-            {
-                case "enemy":
-                case "color":
-                    respawnPosition = currentPlatform.transform.position;
-                    respawnPosition.y += 1f; // Adjust this value to spawn slightly above the platform
-                    break;
-            }
+        // if (lives > 0 && deathReason != "fall")
+        // {
+        //     switch (deathReason)
+        //     {
+        //         case "enemy":
+        //         case "color":
+        //             respawnPosition = currentPlatform.transform.position;
+        //             respawnPosition.y += 1f; // Adjust this value to spawn slightly above the platform
+        //             break;
+        //     }
 
-            if (deathReason == "color" || deathReason == "enemy")
-            {
-                spriteRenderer.color = currentPlatform.GetComponent<Renderer>().material.color;
-            }
+        //     if (deathReason == "color" || deathReason == "enemy")
+        //     {
+        //         spriteRenderer.color = currentPlatform.GetComponent<Renderer>().material.color;
+        //     }
 
-            ResetPlayerPosition(respawnPosition);
-            return;
-        }
+        //     ResetPlayerPosition(respawnPosition);
+        //     return;
+        // }
 
 
         float sessionTime = Time.time - sessionStartTime;
@@ -625,58 +625,58 @@ public class PlayerController : MonoBehaviour
     // }
 
 
-    void ResetPlayerPosition(Vector3 resetPosition)
-    {
+    // void ResetPlayerPosition(Vector3 resetPosition)
+    // {
         
-        transform.position = resetPosition;
+    //     transform.position = resetPosition;
 
-        playerRigidbody.velocity = Vector2.zero;
-        playerRigidbody.angularVelocity = 0f;
+    //     playerRigidbody.velocity = Vector2.zero;
+    //     playerRigidbody.angularVelocity = 0f;
     
-        currentPlatform = null;
-        isOnSeeSaw = false;
-        isOnSeesaw = false;
+    //     currentPlatform = null;
+    //     isOnSeeSaw = false;
+    //     isOnSeesaw = false;
 
-        transform.SetParent(null);
-        transform.rotation = initialRotation;
+    //     transform.SetParent(null);
+    //     transform.rotation = initialRotation;
 
-        StopAllCoroutines();
+    //     StopAllCoroutines();
 
-        canJumpOnAnyPlatform = false;
-        isShadowImmune = false;
-        powerUpActive = false;
-        shadowImmunityActive = false;
+    //     canJumpOnAnyPlatform = false;
+    //     isShadowImmune = false;
+    //     powerUpActive = false;
+    //     shadowImmunityActive = false;
 
-        SetPlayerOpacity(1f);
+    //     SetPlayerOpacity(1f);
 
-        if (powerUpTimerText != null)
-            powerUpTimerText.text = "";
-        if (shadowImmunityTimerText != null)
-            shadowImmunityTimerText.text = "";
+    //     if (powerUpTimerText != null)
+    //         powerUpTimerText.text = "";
+    //     if (shadowImmunityTimerText != null)
+    //         shadowImmunityTimerText.text = "";
 
-        spriteRenderer.enabled = true;
-        playerRigidbody.simulated = true;
-        playerCollider.enabled = true;
+    //     spriteRenderer.enabled = true;
+    //     playerRigidbody.simulated = true;
+    //     playerCollider.enabled = true;
 
-        if (shadow != null)
-        {
-            shadow.SetActive(true);
-            if (shadowCollider != null)
-                shadowCollider.enabled = true;
-        }
-        if (crosshair == null)
-        {
-            crosshair = Instantiate(crosshairPrefab, transform.position, Quaternion.identity);
-        }
+    //     if (shadow != null)
+    //     {
+    //         shadow.SetActive(true);
+    //         if (shadowCollider != null)
+    //             shadowCollider.enabled = true;
+    //     }
+    //     if (crosshair == null)
+    //     {
+    //         crosshair = Instantiate(crosshairPrefab, transform.position, Quaternion.identity);
+    //     }
 
-        recordedPositions.Clear();
+    //     recordedPositions.Clear();
 
-        // Reset any other game-specific variables as needed
-        // For example:
-        // fallCheckTimer = 0f;
-        // shadowStartTimer = 0f;
-        // shadowStarted = false;
-    }
+    //     // Reset any other game-specific variables as needed
+    //     // For example:
+    //     // fallCheckTimer = 0f;
+    //     // shadowStartTimer = 0f;
+    //     // shadowStarted = false;
+    // }
 
 
     void ChangeColorAscending()
@@ -743,8 +743,8 @@ public class PlayerController : MonoBehaviour
             {
                 platformColorMismatch = true;
                 Debug.Log(platformColorMismatch);
-                EndGame("color");
-                // EndGame();
+                // EndGame("color");
+                EndGame();
                 Debug.Log("Game Over! Player landed on a different color platform.");
             }
             else
@@ -786,8 +786,8 @@ public class PlayerController : MonoBehaviour
         {
             if (!isShadowImmune)
             {
-                EndGame("shadow");
-                // EndGame();
+                // EndGame("shadow");
+                EndGame();
                 Debug.Log("Game Over! Shadow collided with the player.");
             }
             else
