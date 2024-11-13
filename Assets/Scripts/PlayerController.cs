@@ -488,10 +488,10 @@ public class PlayerController : MonoBehaviour
     // void EndGame()
     {
         
-        // if (lives > 0) {
-        lives--;
-        UpdateLivesText();
-        // }
+        if (lives > 0) {
+            lives--;
+            UpdateLivesText();
+        }
 
         if (lives > 0 && deathReason != "fall")
         {
