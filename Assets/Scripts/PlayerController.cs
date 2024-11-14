@@ -283,11 +283,14 @@ public class PlayerController : MonoBehaviour
 
         UpdateShootCooldown();
 
-        // if (CheckForDeath())
-        // {
-        //     // Call the method to log the death with the reason
-        //     LogDeath();
-        // }
+    }
+
+    void UpdateShootCooldown()
+    {
+        if (scoreManager != null)
+        {
+            shootCooldown = Mathf.Max(0.1f, 0.1f + (scoreManager.score * 0.007f)); // Ensure cooldown doesn't go below 0.1 seconds
+        }
     }
 
     void UpdateShootCooldown()
