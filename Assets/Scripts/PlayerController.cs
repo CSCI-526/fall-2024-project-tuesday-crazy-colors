@@ -293,14 +293,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void UpdateShootCooldown()
-    {
-        if (scoreManager != null)
-        {
-            shootCooldown = Mathf.Max(0.1f, 0.1f + (scoreManager.score * 0.007f)); // Ensure cooldown doesn't go below 0.1 seconds
-        }
-    }
-
     public void ActivateShadowImmunity(float duration)
     {
         if (!shadowImmunityActive)
