@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Threading.Tasks;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
@@ -100,7 +101,12 @@ public class PlayerController : MonoBehaviour
     public Text livesText;
     private Vector3 startPosition;
     private Vector3 respawnPosition;
-    public GameObject deathMessageUI;
+    // public GameObject deathMessageUI;
+
+     //lives pause
+
+    private GameObject killerEnemy;
+    public TextMeshProUGUI deathMessageUI;
 
     // Start is called before the first frame update
     void Start()
@@ -139,6 +145,11 @@ public class PlayerController : MonoBehaviour
             {
                 shadowSpriteRenderer.color = Color.grey;
             }
+        }
+
+         if (deathMessageUI != null)
+        {
+            deathMessageUI.gameObject.SetActive(false);
         }
 
         // coins 
@@ -293,13 +304,13 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void UpdateShootCooldown()
-    {
-        if (scoreManager != null)
-        {
-            shootCooldown = Mathf.Max(0.1f, 0.1f + (scoreManager.score * 0.007f)); // Ensure cooldown doesn't go below 0.1 seconds
-        }
-    }
+    // void UpdateShootCooldown()
+    // {
+    //     if (scoreManager != null)
+    //     {
+    //         shootCooldown = Mathf.Max(0.1f, 0.1f + (scoreManager.score * 0.007f)); // Ensure cooldown doesn't go below 0.1 seconds
+    //     }
+    // }
 
     public void ActivateShadowImmunity(float duration)
     {
@@ -375,6 +386,8 @@ public class PlayerController : MonoBehaviour
             if (!powerUpActive)
             {
                 collidedWithEnemy = true;
+                killerEnemy = other.gameObject;
+                StartCoroutine(PauseAndRespawn(transform.position, "enemy"));
                 Debug.Log(collidedWithEnemy);
                 EndGame("enemy");
                 // EndGame();
@@ -388,8 +401,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
-
     private IEnumerator ShadowImmunityCoroutine(float duration)
     {
         float remainingTime = duration;
@@ -506,8 +517,11 @@ public class PlayerController : MonoBehaviour
             UpdateLivesText();
         }
 
-        if (lives > 0 && deathReason != "fall")
+       if (lives > 0 && deathReason != "fall")
         {
+            Vector3 respawnPosition = transform.position;
+             if (currentPlatform != null)
+            {
             switch (deathReason)
             {
                 case "enemy":
@@ -522,9 +536,22 @@ public class PlayerController : MonoBehaviour
                 spriteRenderer.color = currentPlatform.GetComponent<Renderer>().material.color;
             }
 
+            if (killerEnemy != null)
+            {
+                Destroy(killerEnemy);
+                killerEnemy = null;
+            }
+            }
+            else
+            {
+                Debug.LogWarning("Current platform is null. Respawning at current position.");
+            }
+
             ResetPlayerPosition(respawnPosition);
+            StartCoroutine(PauseAndRespawn(respawnPosition, deathReason));
             return;
         }
+
 
 
         float sessionTime = Time.time - sessionStartTime;
@@ -601,42 +628,50 @@ public class PlayerController : MonoBehaviour
         // SceneManager.LoadScene("Main Menu");
     }
 
-    // void ResetPlayerPosition(Vector3 resetPosition)
-    // {
-    //     transform.position = resetPosition;
-    //     playerRigidbody.velocity = Vector2.zero;
-    //     currentPlatform = null;
-    //     isOnRotatingPlatform = false;
-    //     transform.SetParent(null);
 
-    //     if (shadow != null)
-    //     {
-    //         shadow.transform.position = resetPosition;
-    //         recordedPositions.Clear();
-    //         shadowStarted = false;
-    //         shadowStartTimer = 0f;
-    //         shadow.SetActive(false);
-    //     }
 
-    //     StopAllCoroutines();
-    //     canJumpOnAnyPlatform = false;
-    //     isShadowImmune = false;
-    //     powerUpActive = false;
-    //     shadowImmunityActive = false;
-    //     SetPlayerOpacity(1f);
-    //     powerUpTimerText.text = "";
-    //     shadowImmunityTimerText.text = "";
-    // }
+private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
+{
+    Time.timeScale = 0f; // Pause the game
+    playerRigidbody.simulated = false; // Disable physics simulation
 
-    // private void ShadowControl()
-    // {
-    //     if (shadowStarted && recordedPositions.Count > delayFrames)
-    //     {
-    //         shadow.transform.position = recordedPositions[0];
-    //         recordedPositions.RemoveAt(0);
-    //     }
-    // }
+    // Show death message and countdown
+    if (deathMessageUI != null)
+    {
+        deathMessageUI.gameObject.SetActive(true);
+        TextMeshProUGUI messageText = deathMessageUI.GetComponent<TextMeshProUGUI>();
+        if (messageText != null)
+        {
 
+            // Countdown timer
+            for (int i = 3; i > 0; i--)
+            {
+                messageText.text = $"Player respawning in {i}...";
+                yield return new WaitForSecondsRealtime(1f);
+            }
+        }
+        else
+        {
+            Debug.LogError("TextMeshProUGUI component not found on deathMessageUI");
+        }
+    }
+    else
+    {
+        Debug.LogError("deathMessageUI is not assigned in the Inspector");
+    }
+
+    // Hide death message
+    if (deathMessageUI != null)
+    {
+        deathMessageUI.gameObject.SetActive(false);
+    }
+
+    Time.timeScale = 1f; // Resume the game
+    playerRigidbody.simulated = true; // Re-enable physics simulation
+
+    ResetPlayerPosition(respawnPosition);
+}
+    
 
     void ResetPlayerPosition(Vector3 resetPosition)
     {
@@ -653,6 +688,8 @@ public class PlayerController : MonoBehaviour
         transform.SetParent(null);
         transform.rotation = initialRotation;
 
+        killerEnemy = null;
+
         StopAllCoroutines();
 
         canJumpOnAnyPlatform = false;
@@ -661,6 +698,7 @@ public class PlayerController : MonoBehaviour
         shadowImmunityActive = false;
 
         SetPlayerOpacity(1f);
+        
 
         if (powerUpTimerText != null)
             powerUpTimerText.text = "";
@@ -684,11 +722,6 @@ public class PlayerController : MonoBehaviour
 
         recordedPositions.Clear();
 
-        // Reset any other game-specific variables as needed
-        // For example:
-        // fallCheckTimer = 0f;
-        // shadowStartTimer = 0f;
-        // shadowStarted = false;
     }
 
 
