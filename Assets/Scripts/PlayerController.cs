@@ -268,9 +268,10 @@ public class PlayerController : MonoBehaviour
         // {
         //     respawnPosition = transform.position;
         // }
-        if (Input.GetMouseButtonDown(0)) // Left mouse button
+        if (Input.GetMouseButtonDown(0) && Time.time >= lastShootTime + shootCooldown) // Left mouse button
         {
             Shoot();
+            lastShootTime = Time.time; // Update the last shoot time
         }
         transform.rotation = initialRotation;
         RotateWithSeesaw();
@@ -280,12 +281,21 @@ public class PlayerController : MonoBehaviour
             UpdateCrosshairPosition();
         }
 
+        UpdateShootCooldown();
 
         // if (CheckForDeath())
         // {
         //     // Call the method to log the death with the reason
         //     LogDeath();
         // }
+    }
+
+    void UpdateShootCooldown()
+    {
+        if (scoreManager != null)
+        {
+            shootCooldown = Mathf.Max(0.1f, 0.1f + (scoreManager.score * 0.007f)); // Ensure cooldown doesn't go below 0.1 seconds
+        }
     }
 
     public void ActivateShadowImmunity(float duration)
@@ -445,7 +455,7 @@ public class PlayerController : MonoBehaviour
 
         while (remainingTime > 0)
         {
-            powerUpTimerText.text = "Color Invincible for " + remainingTime.ToString("F1") + " secs";
+            powerUpTimerText.text = "Player Invincible for " + remainingTime.ToString("F1") + " secs";
 
             // Start blinking effect when there are 3 seconds left
             if (remainingTime <= 3f && !isBlinking)
