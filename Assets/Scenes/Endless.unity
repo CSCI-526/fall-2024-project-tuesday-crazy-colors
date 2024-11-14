@@ -2070,6 +2070,9 @@ MonoBehaviour:
   fireRate: 0.5
   crosshairPrefab: {fileID: 905525668960405532, guid: 9cbf78f60f4cd48e191602f28291dae2, type: 3}
   crosshairDistance: 1
+  lives: 3
+  livesText: {fileID: 1320778843}
+  deathMessageUI: {fileID: 0}
 --- !u!1 &620164768
 GameObject:
   m_ObjectHideFlags: 0
@@ -3754,7 +3757,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1320778842
 RectTransform:
   m_ObjectHideFlags: 0
