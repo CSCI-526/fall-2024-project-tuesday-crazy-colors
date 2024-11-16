@@ -17,7 +17,6 @@ public class PlatformGenerator : MonoBehaviour
     private float platformWidth;
 
     public GameObject whitePowerUpPrefab;
-    public GameObject blackPowerUpPrefab;
     public int powerUpInterval; 
 
      // Coin
@@ -30,7 +29,6 @@ public class PlatformGenerator : MonoBehaviour
 
     // Flags to check if power-ups have been shown
     private bool whitePowerUpShown = false;
-    private bool blackPowerUpShown = false;
     private EnemySpawner enemySpawner;
 
     // BG color change

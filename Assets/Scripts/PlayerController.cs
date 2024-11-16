@@ -8,7 +8,6 @@ using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
-    private Collider2D shadowCollider;
     private GameObject lastPlatform;  // Field to store the last platform
     public float moveSpeed;
     public float jumpForce;
@@ -21,7 +20,6 @@ public class PlayerController : MonoBehaviour
 
     public SendToGoogle sendToGoogle;
     private bool dataSent = false;
-    private bool gameEnded = false;
     private int finalScoreToSend = 0;
 
     private SpriteRenderer spriteRenderer;
@@ -38,14 +36,6 @@ public class PlayerController : MonoBehaviour
     public GameObject startGameUI;
     private bool gameStarted = false;
 
-    // tk shadow
-    public GameObject shadow;
-    public float shadowDelay = 1f;
-    private List<Vector3> recordedPositions = new List<Vector3>();
-    private bool shadowStarted = false;
-    private float shadowStartTimer = 0f;
-    private int delayFrames;
-
     // power-up invincibility
     private bool canJumpOnAnyPlatform = false;
     public Text powerUpTimerText;
@@ -53,19 +43,12 @@ public class PlayerController : MonoBehaviour
     // Track if power-up is active
     private bool powerUpActive = false;
 
-    // Track if shadow immunity is active
-    private bool isShadowImmune = false;
-    public Text shadowImmunityTimerText; // Text for shadow immunity countdown
-    private bool shadowImmunityActive = false;
-
     public GameObject mergeEffectPrefab;
 
     private Vector3 platformLastPosition;
     private bool isOnSeeSaw = false;
 
-    // coins
-    public int coins = 0;
-    public Text coinText;
+    // Shooting
     public GameObject projectilePrefab;
     public float shootCooldown = 0.1f;
     private float lastShootTime;
@@ -74,11 +57,9 @@ public class PlayerController : MonoBehaviour
     public GameObject bulletPrefab;
     public float bulletSpeed = 20f;
     public float fireRate = 0.5f;
-    private float nextFireTime = 0.3f;
     public GameObject crosshairPrefab;
     private GameObject crosshair;
     public float crosshairDistance = 1f;
-
 
     // Analytics
     private string deathReason;
@@ -108,6 +89,9 @@ public class PlayerController : MonoBehaviour
     private GameObject killerEnemy;
     public TextMeshProUGUI deathMessageUI;
 
+    // For the flying scene
+    private bool isFlying = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -118,10 +102,6 @@ public class PlayerController : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.color = colorOrder[currentColorIndex];
 
-        if (shadow != null)
-        {
-            shadowCollider = shadow.GetComponent<Collider2D>();
-        }
         if (endGameUI != null)
         {
             endGameUI.SetActive(false);
@@ -134,27 +114,10 @@ public class PlayerController : MonoBehaviour
             startGameUI.SetActive(true);
         }
 
-        // tk 
-        delayFrames = Mathf.RoundToInt(shadowDelay / Time.deltaTime);
-
-        // Change the color of the shadow to grey
-        if (shadow != null)
-        {
-            SpriteRenderer shadowSpriteRenderer = shadow.GetComponent<SpriteRenderer>();
-            if (shadowSpriteRenderer != null)
-            {
-                shadowSpriteRenderer.color = Color.grey;
-            }
-        }
-
          if (deathMessageUI != null)
         {
             deathMessageUI.gameObject.SetActive(false);
         }
-
-        // coins 
-        coins = PlayerPrefs.GetInt("coins", 0);
-        UpdateCoinText();
 
         //lives
         startPosition = transform.position;
@@ -162,6 +125,14 @@ public class PlayerController : MonoBehaviour
         UpdateLivesText();
         initialRotation = transform.rotation;
         playerRigidbody.freezeRotation = true;
+
+        // Change player jumping mechanics based on scene
+        if (SceneManager.GetActiveScene().name == "Flying")
+        {
+            isFlying = true;
+            gameStarted = true;
+            playerRigidbody.simulated = true;
+        }
     }
 
     public void OnEnemyKilled()
@@ -211,21 +182,6 @@ public class PlayerController : MonoBehaviour
         float horizontalInput = 1;
         playerRigidbody.velocity = new Vector2(horizontalInput * moveSpeed, playerRigidbody.velocity.y);
 
-        if (gameStarted)
-        {
-            recordedPositions.Add(transform.position);
-
-            if (!shadowStarted)
-            {
-                shadowStartTimer += Time.deltaTime;
-                if (shadowStartTimer >= shadowDelay)
-                {
-                    shadowStarted = true;
-                    shadow.SetActive(true); // Activate shadow after delay
-                }
-            }
-        }
-
         if (currentPlatform != null)
         {
             Color platformColor = currentPlatform.GetComponent<Renderer>().material.color;
@@ -248,9 +204,19 @@ public class PlayerController : MonoBehaviour
             ChangeColorDescending();
         }
 
-        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded)
+        if (isFlying)
         {
-            playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
+            }
+        }
+        else
+        {
+            if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded)
+            {
+                playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
+            }
         }
 
         fallCheckTimer += Time.deltaTime;
@@ -272,8 +238,6 @@ public class PlayerController : MonoBehaviour
             transform.position += platformMovement;  // Move the player along with the platform's movement
             platformLastPosition = currentPlatform.transform.position;  // Update platform's last position
         }
-
-        // ShadowControl();
 
         // if (isGrounded)
         // {
@@ -301,33 +265,6 @@ public class PlayerController : MonoBehaviour
         if (scoreManager != null)
         {
             shootCooldown = Mathf.Max(0.1f, 0.1f + (scoreManager.score * 0.007f)); // Ensure cooldown doesn't go below 0.1 seconds
-        }
-    }
-
-    public void ActivateShadowImmunity(float duration)
-    {
-        if (!shadowImmunityActive)
-        {
-            shadowImmunityActive = true;
-            isShadowImmune = true;
-
-            if (shadow != null)
-            {
-                SpriteRenderer shadowSpriteRenderer = shadow.GetComponent<SpriteRenderer>();
-                if (shadowSpriteRenderer != null)
-                {
-                    Color shadowColor = shadowSpriteRenderer.color;
-                    shadowColor.a = 0.5f;
-                    shadowSpriteRenderer.color = shadowColor;
-                }
-
-                if (shadowCollider != null)
-                {
-                    shadowCollider.enabled = false;
-                }
-            }
-
-            StartCoroutine(ShadowImmunityCoroutine(duration));
         }
     }
 
@@ -393,56 +330,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    private IEnumerator ShadowImmunityCoroutine(float duration)
-    {
-        float remainingTime = duration;
-        bool isBlinking = false;
-
-        while (remainingTime > 0)
-        {
-            shadowImmunityTimerText.text = "Shadow Invincible for " + remainingTime.ToString("F1") + " secs";
-
-            if (remainingTime <= 3f && !isBlinking)
-            {
-                isBlinking = true;
-            }
-
-            // If blinking, alternate between red and white
-            if (isBlinking)
-            {
-                shadowImmunityTimerText.color = (Mathf.FloorToInt(remainingTime * 10) % 2 == 0) ? Color.red : Color.white;
-            }
-            else
-            {
-                shadowImmunityTimerText.color = Color.white; // Normal color
-            }
-
-            yield return new WaitForSeconds(0.1f);
-            remainingTime -= 0.1f;
-        }
-
-        if (shadow != null)
-        {
-            SpriteRenderer shadowSpriteRenderer = shadow.GetComponent<SpriteRenderer>();
-            if (shadowSpriteRenderer != null)
-            {
-                Color shadowColor = shadowSpriteRenderer.color;
-                shadowColor.a = 1f;
-                shadowSpriteRenderer.color = shadowColor;
-            }
-
-            if (shadowCollider != null)
-            {
-                shadowCollider.enabled = true;
-            }
-        }
-
-        isShadowImmune = false;
-        shadowImmunityActive = false; // Reset immunity state
-        shadowImmunityTimerText.text = ""; // Clear the timer text
-        shadowImmunityTimerText.color = Color.white;
-    }
-
 
     public void TemporaryPowerUpEffect(float duration)
     {
@@ -549,8 +436,9 @@ public class PlayerController : MonoBehaviour
         float sessionTime = Time.time - sessionStartTime;
         string sessionTimeString = sessionTime.ToString("F2");
 
-        shadowImmunityTimerText.gameObject.SetActive(false);
-        powerUpTimerText.gameObject.SetActive(false);
+        if (powerUpTimerText != null) {
+            powerUpTimerText.gameObject.SetActive(false);
+        }
 
         // DeathAnalytics.instance.DeathLog(collidedWithEnemy, platformColorMismatch, fellOffPlatform);
 
@@ -573,25 +461,11 @@ public class PlayerController : MonoBehaviour
         playerRigidbody.simulated = false;
         playerCollider.enabled = false;
 
-        if (shadow != null)
-        {
-            shadow.SetActive(false); // Deactivate shadow GameObject
-            if (shadowCollider != null)
-            {
-                shadowCollider.enabled = false; // Ensure shadow collider is disabled
-            }
-        }
-
-
         if (scoreManager != null)
         {
             finalScoreToSend = scoreManager.score; // Store the current score to send
             scoreManager.SaveScore();
         }
-
-        coins = 0;
-        PlayerPrefs.SetInt("coins", coins);
-        UpdateCoinText();
 
         if (!dataSent)
         {
@@ -685,34 +559,22 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
         StopAllCoroutines();
 
         canJumpOnAnyPlatform = false;
-        isShadowImmune = false;
         powerUpActive = false;
-        shadowImmunityActive = false;
 
         SetPlayerOpacity(1f);
         
 
         if (powerUpTimerText != null)
             powerUpTimerText.text = "";
-        if (shadowImmunityTimerText != null)
-            shadowImmunityTimerText.text = "";
 
         spriteRenderer.enabled = true;
         playerRigidbody.simulated = true;
         playerCollider.enabled = true;
 
-        if (shadow != null)
-        {
-            shadow.SetActive(true);
-            if (shadowCollider != null)
-                shadowCollider.enabled = true;
-        }
         if (crosshair == null)
         {
             crosshair = Instantiate(crosshairPrefab, transform.position, Quaternion.identity);
         }
-
-        recordedPositions.Clear();
 
     }
 
@@ -819,47 +681,11 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
             }
         }
 
-        // Check for shadow collision
-        if (collision.gameObject.CompareTag("shadow"))
-        {
-            if (!isShadowImmune)
-            {
-                EndGame("shadow");
-                // EndGame();
-                Debug.Log("Game Over! Shadow collided with the player.");
-            }
-            else
-            {
-                Debug.Log("Shadow collision avoided due to immunity.");
-                AbsorbShadow();
-            }
-        }
-
         // if (collision.gameObject.CompareTag("Enemy"))
         // {
         //     Debug.Log("Game Over! Enemy collided with the player.");
         //     EndGame(); 
         // }
-    }
-
-    public void AbsorbShadow()
-    {
-        if (shadow != null)
-        {
-            if (isShadowImmune)
-            {
-                Debug.Log("Cannot absorb shadow while black power-up is active.");
-                return;
-            }
-
-            Vector3 mergePosition = shadow.transform.position;
-            Instantiate(mergeEffectPrefab, mergePosition, Quaternion.identity);
-
-            shadow.transform.position = transform.position;
-            shadow.SetActive(false);
-
-            Debug.Log("Shadow absorbed by player!");
-        }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
@@ -912,9 +738,6 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
         // {
         //     // Reset everything for a new game
         //     lives = 3;
-        //     coins = 0;
-        //     PlayerPrefs.SetInt("coins", coins);
-        //     UpdateCoinText();
         //     scoreManager.ResetScore();
         //     ResetPlayerPosition(startPosition);
         // }
@@ -938,21 +761,5 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
         gameStarted = true;
         playerRigidbody.simulated = true;
         startGameUI.SetActive(false);
-    }
-
-    public void CollectCoin()
-    {
-        coins++;
-        UpdateCoinText();
-        Debug.Log("Coins collected: " + coins);
-        PlayerPrefs.SetInt("coins", coins);
-    }
-
-    private void UpdateCoinText()
-    {
-        if (coinText != null)
-        {
-            coinText.text = "Coins: $" + coins;
-        }
     }
 }
