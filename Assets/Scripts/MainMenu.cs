@@ -19,6 +19,11 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene("Endless");
     }
 
+    public void StartFlyingGame()
+    {
+        SceneManager.LoadScene("Flying");
+    }
+
     public void StartTutorial()
     {
         SceneManager.LoadScene("Tutorial");

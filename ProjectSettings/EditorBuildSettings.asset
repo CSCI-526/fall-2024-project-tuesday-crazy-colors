@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Tutorial.unity
     guid: 09b67b0ac37974f44bc1543a79044317
+  - enabled: 1
+    path: Assets/Scenes/Flying.unity
+    guid: 6a83b50890fe1754ebba1d3d7049b9a6
   m_configObjects: {}
