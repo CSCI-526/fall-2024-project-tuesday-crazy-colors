@@ -5,6 +5,8 @@ using TMPro; // Make sure this is included
 
 public class PlatformGenerator : MonoBehaviour
 {
+    public GameObject jumpPadPrefab; // Assign this in the Inspector
+    public float jumpPadThreshold = 11f; // Distance threshold to add jump pad
     private int platformCount = 0;
     private int platformPhase = 0;
     public GameObject seesawIndicatorPrefab;
@@ -92,6 +94,11 @@ public class PlatformGenerator : MonoBehaviour
             platformCount++;
             platformsGenerated++;
 
+            if (distanceBetween >= jumpPadThreshold)
+            {
+                AddJumpPad(newPlatform);
+            }
+
             // Background color change logic
             if (platformsGenerated == 10)
             {
@@ -131,6 +138,18 @@ public class PlatformGenerator : MonoBehaviour
             // Update the platform phase
             UpdatePlatformPhase();
         }
+    }
+
+    void AddJumpPad(GameObject platform)
+    {
+        // Calculate position for jump pad (at the end of the platform)
+        Vector3 jumpPadPosition = platform.transform.position;
+        jumpPadPosition.x += platform.transform.localScale.x / 2; // Adjust based on your platform size
+        jumpPadPosition.y += 0.0f; // Adjust height as needed
+
+        // Instantiate jump pad
+        GameObject jumpPad = Instantiate(jumpPadPrefab, jumpPadPosition, Quaternion.identity);
+        jumpPad.transform.SetParent(platform.transform); // Parent to platform for easier management
     }
 
 private void AssignPlatformBehavior(PlatformMover platformMover)

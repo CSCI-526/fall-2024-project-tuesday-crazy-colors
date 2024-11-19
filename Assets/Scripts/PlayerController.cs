@@ -8,6 +8,7 @@ using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
+    private bool isOnJumpPad = false;
     private GameObject lastPlatform;  // Field to store the last platform
     public float moveSpeed;
     public float jumpForce;
@@ -615,6 +616,11 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (collision.gameObject.CompareTag("JumpPad"))
+        {
+            isOnJumpPad = true;
+        }
+
         if (collision.gameObject.CompareTag("Platform"))
         {
             transform.localScale = initialPlayerScale;
@@ -690,6 +696,11 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
 
     private void OnCollisionExit2D(Collision2D collision)
     {
+        if (collision.gameObject.CompareTag("JumpPad"))
+        {
+            isOnJumpPad = false;
+        }
+        
         if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = null;
