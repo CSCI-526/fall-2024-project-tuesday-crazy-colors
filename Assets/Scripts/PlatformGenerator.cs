@@ -7,6 +7,7 @@ public class PlatformGenerator : MonoBehaviour
 {
     public GameObject jumpPadPrefab; // Assign this in the Inspector
     public float jumpPadThreshold = 11f; // Distance threshold to add jump pad
+    private GameObject lastPlatform;
     private int platformCount = 0;
     private int platformPhase = 0;
     public GameObject seesawIndicatorPrefab;
@@ -94,10 +95,12 @@ public class PlatformGenerator : MonoBehaviour
             platformCount++;
             platformsGenerated++;
 
-            if (distanceBetween >= jumpPadThreshold)
+            if (lastPlatform != null && distanceBetween >= jumpPadThreshold)
             {
-                AddJumpPad(newPlatform);
+                AddJumpPad(lastPlatform);
             }
+
+            lastPlatform = newPlatform;
 
             // Background color change logic
             if (platformsGenerated == 10)
@@ -144,7 +147,7 @@ public class PlatformGenerator : MonoBehaviour
     {
         // Calculate position for jump pad (at the end of the platform)
         Vector3 jumpPadPosition = platform.transform.position;
-        jumpPadPosition.x += platform.transform.localScale.x / 2; // Adjust based on your platform size
+        jumpPadPosition.x += platform.transform.localScale.x / 2; // Move to the end of the platform
         jumpPadPosition.y += 0.0f; // Adjust height as needed
 
         // Instantiate jump pad

@@ -1380,7 +1380,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpPadPrefab: {fileID: 2660544167144786869, guid: bcc0f69774cff4ca3b434a6d7b74d0f6, type: 3}
-  jumpPadThreshold: 8
+  jumpPadThreshold: 11
   seesawIndicatorPrefab: {fileID: 447423024453338894, guid: 9ebaa9f5be80640ee8d55f085e6a05cd, type: 3}
   enableCoins: 0
   platform: {fileID: 8882925520037461098, guid: 479ea1966f4588746a33792bede9dd36, type: 3}
