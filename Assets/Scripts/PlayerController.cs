@@ -92,6 +92,9 @@ public class PlayerController : MonoBehaviour
     // For the flying scene
     private bool isFlying = false;
 
+    // Animations
+    private Animator animator;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -133,6 +136,9 @@ public class PlayerController : MonoBehaviour
             gameStarted = true;
             playerRigidbody.simulated = true;
         }
+
+        // Animations
+        animator = GetComponent<Animator>();
     }
 
     public void OnEnemyKilled()
@@ -170,6 +176,12 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
+
+        // Animations
+        animator.SetFloat("Speed", playerRigidbody.velocity.x);
+        animator.SetBool("Grounded", isGrounded);
+        Debug.Log("Grounded: " + isGrounded);
+        Debug.Log("Speed: " + playerRigidbody.velocity.x);
 
         if (!gameStarted)
         {
