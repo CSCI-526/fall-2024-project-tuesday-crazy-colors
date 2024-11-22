@@ -33,6 +33,9 @@ public class TutorialPlayerController : MonoBehaviour
     public float crosshairDistance = 1f;
     private Quaternion initialRotation;
 
+    // Animations
+    private Animator animator;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -44,6 +47,9 @@ public class TutorialPlayerController : MonoBehaviour
         // to fix the player shape change or rotation bug
         initialRotation = transform.rotation;
         playerRigidbody.freezeRotation = true;
+
+        // Animations
+        animator = GetComponent<Animator>();
     }
 
     void UpdateCrosshairPosition()
@@ -136,6 +142,10 @@ public class TutorialPlayerController : MonoBehaviour
 
         // to fix the player shape change or rotation bug
         transform.rotation = initialRotation;
+
+        // Animations
+        animator.SetFloat("Speed", playerRigidbody.velocity.x);
+        animator.SetBool("Grounded", isGrounded);
     }
 
     void Shoot()
