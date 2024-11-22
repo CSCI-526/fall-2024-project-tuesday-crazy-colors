@@ -317,7 +317,7 @@ public class PlayerController : MonoBehaviour
             {
                 collidedWithEnemy = true;
                 killerEnemy = other.gameObject;
-                StartCoroutine(PauseAndRespawn(transform.position, "enemy"));
+                //StartCoroutine(PauseAndRespawn(transform.position, "enemy"));
                 Debug.Log(collidedWithEnemy);
                 EndGame("enemy");
                 // EndGame();
