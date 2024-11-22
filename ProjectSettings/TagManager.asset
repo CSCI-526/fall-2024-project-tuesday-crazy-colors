@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - Wall
   - ColoredSection
+  - JumpPad
   layers:
   - Default
   - TransparentFX

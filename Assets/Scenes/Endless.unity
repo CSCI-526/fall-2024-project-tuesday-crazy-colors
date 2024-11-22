@@ -1379,15 +1379,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 416987a101c53d5428f5589e9ccccf75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jumpPadPrefab: {fileID: 2660544167144786869, guid: bcc0f69774cff4ca3b434a6d7b74d0f6, type: 3}
+  jumpPadThreshold: 11
   seesawIndicatorPrefab: {fileID: 447423024453338894, guid: 9ebaa9f5be80640ee8d55f085e6a05cd, type: 3}
   enableCoins: 0
   platform: {fileID: 8882925520037461098, guid: 479ea1966f4588746a33792bede9dd36, type: 3}
   generationPoint: {fileID: 1407376363}
   distanceBetween: 5
   distanceBetweenMin: 5
-  distanceBetweenMax: 10
+  distanceBetweenMax: 15
   whitePowerUpPrefab: {fileID: 433433514180583560, guid: 088f0b77b6ee14d47848ae2068f1a74b, type: 3}
-  blackPowerUpPrefab: {fileID: 1584441401532526543, guid: e09234002c7d543de98407b978a06536, type: 3}
   powerUpInterval: 10
   coinPrefab: {fileID: 0}
   powerUpLabel: {fileID: 1206853042}
@@ -5038,6 +5039,10 @@ PrefabInstance:
       objectReference: {fileID: 1147264952}
     - target: {fileID: 2067340072896473042, guid: 2c4dfd838482834488ce863fdefaf8c6, type: 3}
       propertyPath: m_Name
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 2067340072896473042, guid: 2c4dfd838482834488ce863fdefaf8c6, type: 3}
+      propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 5516349128794248909, guid: 2c4dfd838482834488ce863fdefaf8c6, type: 3}
