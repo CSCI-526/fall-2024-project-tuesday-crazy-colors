@@ -83,6 +83,10 @@ public class PlayerController : MonoBehaviour
     public Text livesText;
     private Vector3 startPosition;
     private Vector3 respawnPosition;
+    public List<Image> heartImages; // List to hold references to heart images
+    public float blinkDuration = 3f; // Duration for blinking effect
+    public float blinkInterval = 0.2f; // Interval for blinking
+
     // public GameObject deathMessageUI;
 
      //lives pause
@@ -140,6 +144,7 @@ public class PlayerController : MonoBehaviour
 
         // Animations
         animator = GetComponent<Animator>();
+        StartCoroutine(BlinkRemainingHearts());
     }
 
     public void OnEnemyKilled()
@@ -153,7 +158,50 @@ public class PlayerController : MonoBehaviour
         {
             livesText.text = "Lives: " + lives;
         }
+
+        
     }
+
+    void UpdateLivesUI()
+    {
+        Debug.Log("Updating Lives UI: Current Lives = " + lives);
+        for (int i = 0; i < heartImages.Count; i++)
+        {
+            heartImages[i].enabled = i < lives;
+            Debug.Log($"Heart {i} is " + (heartImages[i].enabled ? "Visible" : "Hidden"));
+        }
+    }
+
+    IEnumerator BlinkRemainingHearts()
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime < blinkDuration)
+        {
+            // Toggle visibility only for remaining hearts
+            for (int i = 0; i < lives; i++)
+            {
+                heartImages[i].enabled = !heartImages[i].enabled;
+            }
+
+            elapsedTime += blinkInterval;
+            yield return new WaitForSeconds(blinkInterval);
+        }
+
+        // Ensure all remaining hearts are visible after blinking ends
+        for (int i = 0; i < lives; i++)
+        {
+            heartImages[i].enabled = true;
+        }
+    }
+
+
+
+
+    
+
+
+
 
     // Update is called once per frame
 
@@ -407,6 +455,8 @@ public class PlayerController : MonoBehaviour
         if (lives > 0) {
             lives--;
             UpdateLivesText();
+            UpdateLivesUI();
+            // StartCoroutine(BlinkRemainingHearts());
         }
 
        if (lives > 0 && deathReason != "fall")
@@ -528,6 +578,7 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
                 messageText.text = $"Player respawning in {i}...";
                 yield return new WaitForSecondsRealtime(1f);
             }
+            // UpdateLivesUI();
         }
         else
         {
@@ -539,6 +590,8 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
         Debug.LogError("deathMessageUI is not assigned in the Inspector");
     }
 
+    
+
     // Hide death message
     if (deathMessageUI != null)
     {
@@ -549,6 +602,10 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
     playerRigidbody.simulated = true; // Re-enable physics simulation
 
     ResetPlayerPosition(respawnPosition);
+    if (lives > 0) // Ensure there are lives remaining
+    {
+        yield return StartCoroutine(BlinkRemainingHearts());
+    }
 }
     
 
@@ -756,6 +813,7 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
         platformColorMismatch = false;
         deathDataSent = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        StartCoroutine(BlinkRemainingHearts());
 
         // if (lives <= 0)
         // {
