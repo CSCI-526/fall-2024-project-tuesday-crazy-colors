@@ -51,16 +51,18 @@ public class PlayerController : MonoBehaviour
 
     // Shooting
     public GameObject projectilePrefab;
-    public float shootCooldown = 0.1f;
     private float lastShootTime;
+
+    public float shootCooldown = 0.5f; 
     private Quaternion initialRotation;
     private bool isOnSeesaw = false;
     public GameObject bulletPrefab;
-    public float bulletSpeed = 20f;
-    public float fireRate = 0.5f;
+    public float bulletSpeed = 10f;
+    public float fireRate = 0.1f;
     public GameObject crosshairPrefab;
     private GameObject crosshair;
     public float crosshairDistance = 1f;
+
 
     // Analytics
     private string deathReason;
@@ -89,7 +91,7 @@ public class PlayerController : MonoBehaviour
 
     // public GameObject deathMessageUI;
 
-     //lives pause
+    //lives pause
 
     private GameObject killerEnemy;
     public TextMeshProUGUI deathMessageUI;
@@ -122,7 +124,7 @@ public class PlayerController : MonoBehaviour
             startGameUI.SetActive(true);
         }
 
-         if (deathMessageUI != null)
+        if (deathMessageUI != null)
         {
             deathMessageUI.gameObject.SetActive(false);
         }
@@ -159,7 +161,7 @@ public class PlayerController : MonoBehaviour
             livesText.text = "Lives: " + lives;
         }
 
-        
+
     }
 
     void UpdateLivesUI()
@@ -198,7 +200,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-    
+
 
 
 
@@ -300,15 +302,21 @@ public class PlayerController : MonoBehaviour
             platformLastPosition = currentPlatform.transform.position;  // Update platform's last position
         }
 
-        // if (isGrounded)
+        // if (Input.GetMouseButtonDown(0) && Time.time >= lastShootTime + shootCooldown) // Left mouse button
         // {
-        //     respawnPosition = transform.position;
+        //     Shoot();
+        //     lastShootTime = Time.time; // Update the last shoot time
         // }
-        if (Input.GetMouseButtonDown(0) && Time.time >= lastShootTime + shootCooldown) // Left mouse button
+
+        if (Input.GetMouseButton(0))
         {
-            Shoot();
-            lastShootTime = Time.time; // Update the last shoot time
+            if (Time.time >= lastShootTime + fireRate)
+            {
+                Shoot();
+                lastShootTime = Time.time;
+            }
         }
+
         transform.rotation = initialRotation;
         RotateWithSeesaw();
         UpdateCrosshairPosition();
@@ -316,16 +324,13 @@ public class PlayerController : MonoBehaviour
         {
             UpdateCrosshairPosition();
         }
-
         UpdateShootCooldown();
-
     }
-
     void UpdateShootCooldown()
     {
         if (scoreManager != null)
         {
-            shootCooldown = Mathf.Max(0.1f, 0.1f + (scoreManager.score * 0.007f)); // Ensure cooldown doesn't go below 0.1 seconds
+            fireRate = Mathf.Max(0.05f, 0.2f + (scoreManager.score * 0.007f)); // Ensure cooldown doesn't go below 0.1 seconds
         }
     }
 
@@ -338,34 +343,18 @@ public class PlayerController : MonoBehaviour
         }
 
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mousePosition.z = 0; // Ensure 2D shooting
         Vector2 direction = (mousePosition - transform.position).normalized;
 
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
-        if (bulletPrefab == null)
-        {
-            Debug.LogError("Bullet prefab is not assigned!");
-            return;
-        }
-
+        // Instantiate bullet and apply velocity
         GameObject bullet = Instantiate(bulletPrefab, transform.position, rotation);
-
-        if (bullet == null)
-        {
-            Debug.LogError("Failed to instantiate bullet!");
-            return;
-        }
-
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-
         if (rb != null)
         {
             rb.velocity = direction * bulletSpeed;
-        }
-        else
-        {
-            Debug.LogError("Bullet prefab is missing Rigidbody2D component!");
         }
     }
 
@@ -451,38 +440,39 @@ public class PlayerController : MonoBehaviour
     void EndGame(string deathReason)
     // void EndGame()
     {
-        
-        if (lives > 0) {
+
+        if (lives > 0)
+        {
             lives--;
             UpdateLivesText();
             UpdateLivesUI();
             // StartCoroutine(BlinkRemainingHearts());
         }
 
-       if (lives > 0 && deathReason != "fall")
+        if (lives > 0 && deathReason != "fall")
         {
             Vector3 respawnPosition = transform.position;
-             if (currentPlatform != null)
+            if (currentPlatform != null)
             {
-            switch (deathReason)
-            {
-                case "enemy":
-                case "color":
-                    respawnPosition = currentPlatform.transform.position;
-                    respawnPosition.y += 1f; // Adjust this value to spawn slightly above the platform
-                    break;
-            }
+                switch (deathReason)
+                {
+                    case "enemy":
+                    case "color":
+                        respawnPosition = currentPlatform.transform.position;
+                        respawnPosition.y += 1f; // Adjust this value to spawn slightly above the platform
+                        break;
+                }
 
-            if (deathReason == "color" || deathReason == "enemy")
-            {
-                spriteRenderer.color = currentPlatform.GetComponent<Renderer>().material.color;
-            }
+                if (deathReason == "color" || deathReason == "enemy")
+                {
+                    spriteRenderer.color = currentPlatform.GetComponent<Renderer>().material.color;
+                }
 
-            if (killerEnemy != null)
-            {
-                Destroy(killerEnemy);
-                killerEnemy = null;
-            }
+                if (killerEnemy != null)
+                {
+                    Destroy(killerEnemy);
+                    killerEnemy = null;
+                }
             }
             else
             {
@@ -499,7 +489,8 @@ public class PlayerController : MonoBehaviour
         float sessionTime = Time.time - sessionStartTime;
         string sessionTimeString = sessionTime.ToString("F2");
 
-        if (powerUpTimerText != null) {
+        if (powerUpTimerText != null)
+        {
             powerUpTimerText.gameObject.SetActive(false);
         }
 
@@ -559,64 +550,64 @@ public class PlayerController : MonoBehaviour
 
 
 
-private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
-{
-    Time.timeScale = 0f; // Pause the game
-    playerRigidbody.simulated = false; // Disable physics simulation
-
-    // Show death message and countdown
-    if (deathMessageUI != null)
+    private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
     {
-        deathMessageUI.gameObject.SetActive(true);
-        TextMeshProUGUI messageText = deathMessageUI.GetComponent<TextMeshProUGUI>();
-        if (messageText != null)
-        {
+        Time.timeScale = 0f; // Pause the game
+        playerRigidbody.simulated = false; // Disable physics simulation
 
-            // Countdown timer
-            for (int i = 3; i > 0; i--)
+        // Show death message and countdown
+        if (deathMessageUI != null)
+        {
+            deathMessageUI.gameObject.SetActive(true);
+            TextMeshProUGUI messageText = deathMessageUI.GetComponent<TextMeshProUGUI>();
+            if (messageText != null)
             {
-                messageText.text = $"Player respawning in {i}...";
-                yield return new WaitForSecondsRealtime(1f);
+
+                // Countdown timer
+                for (int i = 3; i > 0; i--)
+                {
+                    messageText.text = $"Player respawning in {i}...";
+                    yield return new WaitForSecondsRealtime(1f);
+                }
+                // UpdateLivesUI();
             }
-            // UpdateLivesUI();
+            else
+            {
+                Debug.LogError("TextMeshProUGUI component not found on deathMessageUI");
+            }
         }
         else
         {
-            Debug.LogError("TextMeshProUGUI component not found on deathMessageUI");
+            Debug.LogError("deathMessageUI is not assigned in the Inspector");
+        }
+
+
+
+        // Hide death message
+        if (deathMessageUI != null)
+        {
+            deathMessageUI.gameObject.SetActive(false);
+        }
+
+        Time.timeScale = 1f; // Resume the game
+        playerRigidbody.simulated = true; // Re-enable physics simulation
+
+        ResetPlayerPosition(respawnPosition);
+        if (lives > 0) // Ensure there are lives remaining
+        {
+            yield return StartCoroutine(BlinkRemainingHearts());
         }
     }
-    else
-    {
-        Debug.LogError("deathMessageUI is not assigned in the Inspector");
-    }
 
-    
-
-    // Hide death message
-    if (deathMessageUI != null)
-    {
-        deathMessageUI.gameObject.SetActive(false);
-    }
-
-    Time.timeScale = 1f; // Resume the game
-    playerRigidbody.simulated = true; // Re-enable physics simulation
-
-    ResetPlayerPosition(respawnPosition);
-    if (lives > 0) // Ensure there are lives remaining
-    {
-        yield return StartCoroutine(BlinkRemainingHearts());
-    }
-}
-    
 
     void ResetPlayerPosition(Vector3 resetPosition)
     {
-        
+
         transform.position = resetPosition;
 
         playerRigidbody.velocity = Vector2.zero;
         playerRigidbody.angularVelocity = 0f;
-    
+
         currentPlatform = null;
         isOnSeeSaw = false;
         isOnSeesaw = false;
@@ -632,7 +623,7 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
         powerUpActive = false;
 
         SetPlayerOpacity(1f);
-        
+
 
         if (powerUpTimerText != null)
             powerUpTimerText.text = "";
@@ -696,20 +687,30 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
             currentPlatform = collision.gameObject;
             platformLastPosition = currentPlatform.transform.position;
             Color platformColor = collision.gameObject.GetComponent<Renderer>().material.color;
-            
+
             PlatformMover platformMover = currentPlatform.GetComponent<PlatformMover>();
 
-            if (platformMover != null) {
+            if (platformMover != null)
+            {
                 secondLastPlatformType = lastPlatformType;
-                if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw) {
+                if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw)
+                {
                     lastPlatformType = "See Saw";
-                } else if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.Static) {
+                }
+                else if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.Static)
+                {
                     lastPlatformType = "Static";
-                } else if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.MoveVertically) {
+                }
+                else if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.MoveVertically)
+                {
                     lastPlatformType = "Vertically Moving";
-                } else if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.ShrinkAndGrowHorizontally) {
+                }
+                else if (platformMover.GetBehavior() == PlatformMover.PlatformBehavior.ShrinkAndGrowHorizontally)
+                {
                     lastPlatformType = "Shrinking";
-                } else {
+                }
+                else
+                {
                     lastPlatformType = "Neutral";
                 }
             }
@@ -769,7 +770,7 @@ private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)
         {
             isOnJumpPad = false;
         }
-        
+
         if (collision.gameObject.CompareTag("Platform"))
         {
             currentPlatform = null;
