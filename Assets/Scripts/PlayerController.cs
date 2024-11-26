@@ -76,11 +76,6 @@ public class PlayerController : MonoBehaviour
     private float sessionStartTime;
     private string lastPlatformType = "Neutral";
     private string secondLastPlatformType = "Neutral";
-    // private float colorSwitchStartTime;
-    // private float colorSwitchEndTime;
-    // private float colorSwitchDurationSum = 0f;
-    // private int colorSwitchDurationCount = 0;
-    // private float colorSwitchDurationAverage = 0f;
 
     //lives
     public int lives = 3;
@@ -90,8 +85,6 @@ public class PlayerController : MonoBehaviour
     public List<Image> heartImages; // List to hold references to heart images
     public float blinkDuration = 3f; // Duration for blinking effect
     public float blinkInterval = 0.2f; // Interval for blinking
-
-    // public GameObject deathMessageUI;
 
     //lives pause
 
@@ -502,7 +495,6 @@ void Shoot()
             powerUpTimerText.gameObject.SetActive(false);
         }
 
-        // DeathAnalytics.instance.DeathLog(collidedWithEnemy, platformColorMismatch, fellOffPlatform);
 
         if (!deathDataSent)
         {
@@ -819,6 +811,7 @@ void Shoot()
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         StartCoroutine(BlinkRemainingHearts());
 
+    }
 
     // Trigger the game start
     public void StartGame()
