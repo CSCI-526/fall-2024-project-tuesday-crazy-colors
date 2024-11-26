@@ -8,6 +8,8 @@ using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
+    public int bulletsPerShot = 3; // Number of bullets in each spread
+    public float spreadAngle = 15f; // Angle of the spread in degrees
     private bool isOnJumpPad = false;
     private GameObject lastPlatform;  // Field to store the last platform
     public float moveSpeed;
@@ -334,29 +336,35 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Shoot()
+void Shoot()
+{
+    if (Camera.main == null)
     {
-        if (Camera.main == null)
-        {
-            Debug.LogError("Main camera not found!");
-            return;
-        }
+        Debug.LogError("Main camera not found!");
+        return;
+    }
 
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePosition.z = 0; // Ensure 2D shooting
-        Vector2 direction = (mousePosition - transform.position).normalized;
+    Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+    mousePosition.z = 0;
+    Vector2 direction = (mousePosition - transform.position).normalized;
 
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+    float centerAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+    for (int i = 0; i < bulletsPerShot; i++)
+    {
+        float currentSpread = spreadAngle * ((float)i / (bulletsPerShot - 1) - 0.5f);
+        float angle = centerAngle + currentSpread;
         Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
-        // Instantiate bullet and apply velocity
         GameObject bullet = Instantiate(bulletPrefab, transform.position, rotation);
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            rb.velocity = direction * bulletSpeed;
+            Vector2 bulletDirection = rotation * Vector2.right;
+            rb.velocity = bulletDirection * bulletSpeed;
         }
     }
+}
 
     private void OnTriggerEnter2D(Collider2D other)
     {
