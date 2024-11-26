@@ -143,4 +143,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b52875191a0854787915cfdb882a4714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  launchForce: 40
+  launchForce: 43
