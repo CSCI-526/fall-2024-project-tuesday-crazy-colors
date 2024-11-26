@@ -271,14 +271,14 @@ public class PlayerController : MonoBehaviour
 
         if (isFlying)
         {
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.Space))
             {
                 playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
             }
         }
         else
         {
-            if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded)
+            if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.Space)) && isGrounded)
             {
                 playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
             }
