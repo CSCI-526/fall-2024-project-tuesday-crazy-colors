@@ -197,14 +197,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-
-
-
-
-
-
     // Update is called once per frame
-
     void LateUpdate()
     {
         UpdateCrosshairPosition();
@@ -233,6 +226,11 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Speed: " + playerRigidbody.velocity.x);
 
         if (!gameStarted)
+        {
+            return;
+        }
+
+        if (!gameStarted || (leaderboardManager != null && leaderboardManager.leaderboardCanvas.activeSelf))
         {
             return;
         }
@@ -310,11 +308,7 @@ public class PlayerController : MonoBehaviour
             platformLastPosition = currentPlatform.transform.position;  // Update platform's last position
         }
 
-        // if (Input.GetMouseButtonDown(0) && Time.time >= lastShootTime + shootCooldown) // Left mouse button
-        // {
-        //     Shoot();
-        //     lastShootTime = Time.time; // Update the last shoot time
-        // }
+        
 
         if (Input.GetMouseButton(0))
         {
@@ -347,6 +341,11 @@ void Shoot()
     if (Camera.main == null)
     {
         Debug.LogError("Main camera not found!");
+        return;
+    }
+
+    if (leaderboardManager != null && leaderboardManager.leaderboardCanvas.activeSelf)
+    {
         return;
     }
 
@@ -540,6 +539,13 @@ void Shoot()
         if (leaderboardManager != null)
         {
             leaderboardManager.ShowLeaderboard();
+        }
+
+        // Ensure the player's input is not cleared
+        TMP_InputField nameInput = leaderboardManager.playerNameInput;
+        if (nameInput != null)
+        {
+            nameInput.text = nameInput.text; // Preserve existing text
         }
 
 
