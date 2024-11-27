@@ -97,6 +97,8 @@ public class PlayerController : MonoBehaviour
     // Animations
     private Animator animator;
 
+    //LB
+    public LeaderboardManager leaderboardManager;
     // Start is called before the first frame update
     void Start()
     {
@@ -106,6 +108,7 @@ public class PlayerController : MonoBehaviour
         playerCollider = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.color = colorOrder[currentColorIndex];
+        leaderboardManager = FindObjectOfType<LeaderboardManager>();
 
         if (endGameUI != null)
         {
@@ -261,6 +264,16 @@ public class PlayerController : MonoBehaviour
         {
             ChangeColorDescending();
         }
+
+        if (Input.GetMouseButton(0) && 
+        (leaderboardManager == null || !leaderboardManager.leaderboardCanvas.activeSelf))
+    {
+        if (Time.time >= lastShootTime + fireRate)
+        {
+            Shoot();
+            lastShootTime = Time.time;
+        }
+    }
 
         if (isFlying)
         {
@@ -507,10 +520,29 @@ void Shoot()
 
         }
 
-        if (endGameUI != null)
+        // if (endGameUI != null)
+        // {
+        //     endGameUI.SetActive(true);
+        // }
+
+        // if (leaderboardManager != null)
+        // {
+        //     leaderboardManager.ShowLeaderboard();
+        //     StartCoroutine(ShowEndGameUIAfterDelay());
+        // }
+        // else
+        // {
+        //     if (endGameUI != null)
+        //     {
+        //         endGameUI.SetActive(true);
+        //     }
+        // }
+        if (leaderboardManager != null)
         {
-            endGameUI.SetActive(true);
+            leaderboardManager.ShowLeaderboard();
         }
+
+
         spriteRenderer.enabled = false;
         playerRigidbody.simulated = false;
         playerCollider.enabled = false;
@@ -548,6 +580,7 @@ void Shoot()
         // SceneManager.LoadScene("Main Menu");
     }
 
+    
 
 
     private IEnumerator PauseAndRespawn(Vector3 respawnPosition, string deathReason)

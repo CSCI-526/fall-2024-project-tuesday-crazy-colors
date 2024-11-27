@@ -1,7 +1,10 @@
+// 
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Dan.Main;
+using Dan.Models;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -11,7 +14,6 @@ public class ScoreManager : MonoBehaviour
     public Text scoreText1;
     public int lastScore = 0;
 
-    // Start is called before the first frame update
     void Start()
     {
         maxScore = PlayerPrefs.GetInt("MaxScore", 0);
@@ -22,8 +24,6 @@ public class ScoreManager : MonoBehaviour
     {
         scoreText.text = "Score: " + score.ToString() + "\n" + "Max Score: " + maxScore.ToString();
         scoreText1.text = "Score: " + score.ToString() + "\n" + "Max Score: " + maxScore.ToString();
-        // Debug.Log("Current Score: " + score);
-        // Debug.Log("Max Score: " + maxScore);
 
         if (score > maxScore)
         {
@@ -36,13 +36,17 @@ public class ScoreManager : MonoBehaviour
 
     public void SaveScore()
     {
-        lastScore = score; // Store the current score
+        lastScore = score;
         UpdateScoreText();
     }
 
-    // public void ResetScore()
-    // {
-    //     score = 0;
-    //     UpdateScoreText();
-    // }
+    public void AddScoreToLeaderboard(string playerName)
+    {
+        LeaderboardCreator.UploadNewEntry(Leaderboards.PublicKey, playerName, maxScore);
+    }
+
+    public void GetLeaderboard(System.Action<Entry[]> callback)
+    {
+        LeaderboardCreator.GetLeaderboard(Leaderboards.PublicKey, callback);
+    }
 }
