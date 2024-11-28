@@ -104,6 +104,9 @@ public class PlayerController : MonoBehaviour
     // Animations
     private Animator animator;
 
+    //LB
+    public LeaderboardManager leaderboardManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -241,6 +244,11 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        if (!gameStarted || (leaderboardManager != null && leaderboardManager.leaderboardCanvas.activeSelf))
+        {
+            return;
+        }
+
         isGrounded = Physics2D.IsTouchingLayers(playerCollider, whatIsGroundLayer);
 
         // float horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -341,6 +349,11 @@ void Shoot()
     if (Camera.main == null)
     {
         Debug.LogError("Main camera not found!");
+        return;
+    }
+
+    if (leaderboardManager != null && leaderboardManager.leaderboardCanvas.activeSelf)
+    {
         return;
     }
 
@@ -515,10 +528,27 @@ void Shoot()
 
         }
 
-        if (endGameUI != null)
+        // if (endGameUI != null)
+        // {
+        //     endGameUI.SetActive(true);
+        // }
+
+
+        //LB
+        if (leaderboardManager != null)
         {
-            endGameUI.SetActive(true);
+            leaderboardManager.livesText = livesText;
+            leaderboardManager.ShowLeaderboard();
         }
+
+        // Ensure the player's input is not cleared
+        TMP_InputField nameInput = leaderboardManager.playerNameInput;
+        if (nameInput != null)
+        {
+            nameInput.text = nameInput.text; // Preserve existing text
+        }
+
+
         spriteRenderer.enabled = false;
         playerRigidbody.simulated = false;
         playerCollider.enabled = false;
