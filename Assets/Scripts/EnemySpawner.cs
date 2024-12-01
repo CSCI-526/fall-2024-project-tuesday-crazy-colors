@@ -44,13 +44,30 @@ public class EnemySpawner : MonoBehaviour
         if (spawnIndex != -1)
         {
             GameObject spawnPlatform = platforms[spawnIndex];
-            int enemiesToSpawn = CalculateEnemiesToSpawn();
-            for (int i = 0; i < enemiesToSpawn; i++)
-            {
-                SpawnEnemyOnPlatform(spawnPlatform);
-            }
+            SpawnEnemyOnPlatform(spawnPlatform);
             lastSpawnedPlatformIndex = spawnIndex;
         }
+        else
+        {
+            Debug.Log("No valid platform for spawning enemies.");
+        }
+        // int spawnIndex = GetNextSpawnIndex();
+        // int spawnIndex = GetNextSpawnIndex();
+        // if (spawnIndex != -1)
+        // {
+        //     GameObject spawnPlatform = platforms[spawnIndex];
+        //     int enemiesToSpawn = CalculateEnemiesToSpawn();
+        //     for (int i = 0; i < enemiesToSpawn; i++)
+        //     {
+        //         SpawnEnemyOnPlatform(spawnPlatform);
+        //     }
+        //     lastSpawnedPlatformIndex = spawnIndex;
+        // }
+        // else
+        // {
+        //     Debug.Log("No valid platform for spawning enemies.");
+        // }
+
     }
 
     int CalculateEnemiesToSpawn()
@@ -62,6 +79,11 @@ public class EnemySpawner : MonoBehaviour
 
     void SpawnEnemyOnPlatform(GameObject platform)
     {
+        // Check if there's already an enemy on the platform
+        if (platform.transform.childCount > 0)
+        {
+            return; // Skip spawning if there's already an enemy
+        }
         PlatformMover platformMover = platform.GetComponent<PlatformMover>();
         if (platformMover != null && platformMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw)
         {
@@ -81,29 +103,105 @@ public class EnemySpawner : MonoBehaviour
             enemyMovement.speed = Random.Range(1f, 4f);
         }
     }
+    float spawnDistance = 10f;
 
     int GetNextSpawnIndex()
     {
-        int playerPlatformIndex = GetPlayerPlatformIndex();
-        if (playerPlatformIndex == -1 || platforms.Count <= playerPlatformIndex + 2)
-        {
-            return -1;
-        }
+        // Predefined platform indices for spawning
+        List<int> predefinedPlatforms = new List<int> { 10, 15, 20, 23, 25, 27, 30 };
 
-        // Ensure enemies spawn farther ahead of the player (e.g., 3 platforms ahead)
-        int startIndex = Mathf.Max(playerPlatformIndex + 3, lastSpawnedPlatformIndex + 1);
-        for (int i = startIndex; i < platforms.Count; i++)
+        // Get the player's current platform index
+        int playerPlatformIndex = GetPlayerPlatformIndex();
+
+        // Start from the first predefined platform after the player's current platform
+        int startIndex = 0;
+        for (int i = 0; i < predefinedPlatforms.Count; i++)
         {
-            if (platforms[i] != null)
+            if (predefinedPlatforms[i] > playerPlatformIndex)
             {
-                PlatformMover platformMover = platforms[i].GetComponent<PlatformMover>();
-                if (platformMover == null || platformMover.GetBehavior() != PlatformMover.PlatformBehavior.SeeSaw)
-                {
-                    return i;
-                }
+                startIndex = i;
+                break;
+            }
+        }
+        PlayerController player = FindObjectOfType<PlayerController>();
+        if (player == null) return -1;
+
+        for (int i = startIndex; i < predefinedPlatforms.Count; i++)
+        {
+            int platformIndex = predefinedPlatforms[i];
+
+            // Validate platform existence, validity, and if it's after the player's current platform
+            if (platformIndex >= platforms.Count || platforms[platformIndex] == null || platforms[platformIndex].transform.position.x < player.transform.position.x + spawnDistance)
+            {
+                continue;
+            }
+
+            // PlatformMover platformMover = platforms[platformIndex].GetComponent<PlatformMover>();
+            // if (platformMover != null && platformMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw)
+            // {
+            //     // If the current platform is a See-Saw, skip it and try the next one
+            //     i++;
+            // }
+            // else
+            // {
+            //     return platformIndex;
+            // }
+            PlatformMover platformMover = platforms[platformIndex].GetComponent<PlatformMover>();
+            if (platformMover == null || platformMover.GetBehavior() != PlatformMover.PlatformBehavior.SeeSaw)
+            {
+                Debug.Log("Spawning enemy on platform: " + platformIndex);
+                return platformIndex;
             }
         }
 
+        // After the 30th platform, spawn on every other platform
+
+        for (int i = 31; i < platforms.Count; i += 2)
+        {
+            if (i > playerPlatformIndex)
+            {
+                if (platforms[i] != null)
+                {
+                    // Check if the platform is a See-Saw
+                    PlatformMover platformMover = platforms[i].GetComponent<PlatformMover>();
+                    if (platformMover == null || platformMover.GetBehavior() != PlatformMover.PlatformBehavior.SeeSaw)
+                    {
+                        // If the current platform is not a See-Saw, return its index
+                        return i;
+                    }
+                    else
+                    {
+                        // If the current platform is a See-Saw, check the next one
+                        int nextPlatformIndex = i + 2;
+                        if (nextPlatformIndex < platforms.Count && platforms[nextPlatformIndex] != null)
+                        {
+                            PlatformMover nextPlatformMover = platforms[nextPlatformIndex].GetComponent<PlatformMover>();
+                            if (nextPlatformMover == null || nextPlatformMover.GetBehavior() != PlatformMover.PlatformBehavior.SeeSaw)
+                            {
+                                return nextPlatformIndex;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // for (int i = 31; i < platforms.Count; i += 2)
+        // {
+        //     if (i > playerPlatformIndex)
+        //     {
+        //         if (platforms[i] != null)
+        //         {
+        //             PlatformMover platformMover = platforms[i].GetComponent<PlatformMover>();
+        //             if (platformMover == null || platformMover.GetBehavior() != PlatformMover.PlatformBehavior.SeeSaw)
+        //             {
+        //                 Debug.Log("Spawning enemy on platform: " + i);
+        //                 return i;
+        //             }
+        //         }
+        //     }
+        // }
+
+        Debug.Log("No valid platform found for spawning.");
         return -1;
     }
 
@@ -116,7 +214,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (platforms[i] != null && player.transform.position.x < platforms[i].transform.position.x)
             {
-                return i - 1;
+                return Mathf.Max(0, i - 1); // Ensure valid index
             }
         }
 
