@@ -109,6 +109,8 @@ public class LeaderboardManager : MonoBehaviour
             isSubmitting = true;
             playerNameInput.interactable = false;  // Disable input during submission
             submitButton.interactable = false;     // Disable submit button during submission
+
+            int scoreToSubmit = scoreManager.score > scoreManager.maxScore ? scoreManager.score : scoreManager.maxScore;
             
             LeaderboardCreator.UploadNewEntry(Leaderboards.PublicKey, 
                 playerName, scoreManager.maxScore, 

@@ -37,6 +37,11 @@ public class ScoreManager : MonoBehaviour
     public void SaveScore()
     {
         lastScore = score;
+        if (score > maxScore)
+        {
+            maxScore = score;
+            PlayerPrefs.SetInt("MaxScore", maxScore);
+        }
         UpdateScoreText();
     }
 
