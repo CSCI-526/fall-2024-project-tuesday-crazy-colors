@@ -7087,6 +7087,8 @@ MonoBehaviour:
   shootCooldown: 0.1
   bulletPrefab: {fileID: 1271186404359259157, guid: b0610c8246a0141e08ff9d8af001ebf9, type: 3}
   bulletSpeed: 20
+  bulletsPerShot: 3
+  spreadAngle: 15
   crosshairPrefab: {fileID: 905525668960405532, guid: 9cbf78f60f4cd48e191602f28291dae2, type: 3}
   crosshairDistance: 1
   powerUpTimerText: {fileID: 418454483}
@@ -7428,7 +7430,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 12.829237
+  orthographic size: 18.428
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
