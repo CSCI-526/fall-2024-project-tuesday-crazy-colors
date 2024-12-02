@@ -37,6 +37,10 @@ public class LeaderboardManager : MonoBehaviour
     
     public void ShowLeaderboard()
     {
+        if (scoreManager != null)
+        {
+            scoreManager.SaveScore();  // Ensure score is saved before showing leaderboard
+        }
         leaderboardCanvas.SetActive(true);
         if (endGameUI != null)
         {
@@ -99,32 +103,33 @@ public class LeaderboardManager : MonoBehaviour
             }
         }
     }
+
+
     public void SubmitPlayerName()
     {
-        if (isSubmitting) return;  // Prevent multiple submissions
-        //playerNameInput.interactable = true;
+        if (isSubmitting) return;
+        
         string playerName = playerNameInput.text;
         if (!string.IsNullOrEmpty(playerName))
         {
             isSubmitting = true;
-            playerNameInput.interactable = false;  // Disable input during submission
-            submitButton.interactable = false;     // Disable submit button during submission
-
-            int scoreToSubmit = scoreManager.score > scoreManager.maxScore ? scoreManager.score : scoreManager.maxScore;
+            playerNameInput.interactable = false;
+            submitButton.interactable = false;
+            
+            // Get the current score directly from ScoreManager
+            int currentScore = Mathf.Max(scoreManager.score, scoreManager.maxScore);
             
             LeaderboardCreator.UploadNewEntry(Leaderboards.PublicKey, 
-                playerName, scoreManager.maxScore, 
+                playerName, currentScore, 
                 (success) => {
                     if (success)
                     {
                         UpdateLeaderboardUI();
-                        // Only hide after successful upload
                         playerNameInput.gameObject.SetActive(false);
                         submitButton.gameObject.SetActive(false);
                     }
                     else
                     {
-                        // Re-enable input if submission fails
                         playerNameInput.interactable = true;
                         submitButton.interactable = true;
                     }
@@ -132,6 +137,44 @@ public class LeaderboardManager : MonoBehaviour
                 });
         }
     }
+
+
+
+
+
+    // public void SubmitPlayerName()
+    // {
+    //     if (isSubmitting) return;  // Prevent multiple submissions
+    //     //playerNameInput.interactable = true;
+    //     string playerName = playerNameInput.text;
+    //     if (!string.IsNullOrEmpty(playerName))
+    //     {
+    //         isSubmitting = true;
+    //         playerNameInput.interactable = false;  // Disable input during submission
+    //         submitButton.interactable = false;     // Disable submit button during submission
+
+    //         int scoreToSubmit = scoreManager.score > scoreManager.maxScore ? scoreManager.score : scoreManager.maxScore;
+            
+    //         LeaderboardCreator.UploadNewEntry(Leaderboards.PublicKey, 
+    //             playerName, scoreManager.maxScore, 
+    //             (success) => {
+    //                 if (success)
+    //                 {
+    //                     UpdateLeaderboardUI();
+    //                     // Only hide after successful upload
+    //                     playerNameInput.gameObject.SetActive(false);
+    //                     submitButton.gameObject.SetActive(false);
+    //                 }
+    //                 else
+    //                 {
+    //                     // Re-enable input if submission fails
+    //                     playerNameInput.interactable = true;
+    //                     submitButton.interactable = true;
+    //                 }
+    //                 isSubmitting = false;
+    //             });
+    //     }
+    //}
 
     private void UpdateLeaderboardUI()
     {
