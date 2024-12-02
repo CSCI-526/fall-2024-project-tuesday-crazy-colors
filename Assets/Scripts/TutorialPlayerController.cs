@@ -29,6 +29,8 @@ public class TutorialPlayerController : MonoBehaviour
     private float lastShootTime;
     public GameObject bulletPrefab;
     public float bulletSpeed = 20f;
+    public int bulletsPerShot = 3; // Number of bullets in each spread
+    public float spreadAngle = 15f; // Angle of the spread in degrees
     public GameObject crosshairPrefab;
     private GameObject crosshair;
     public float crosshairDistance = 1f;
@@ -170,34 +172,24 @@ public class TutorialPlayerController : MonoBehaviour
         }
 
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mousePosition.z = 0;
         Vector2 direction = (mousePosition - transform.position).normalized;
 
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        float centerAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        if (bulletPrefab == null)
+        for (int i = 0; i < bulletsPerShot; i++)
         {
-            Debug.LogError("Bullet prefab is not assigned!");
-            return;
-        }
+            float currentSpread = spreadAngle * ((float)i / (bulletsPerShot - 1) - 0.5f);
+            float angle = centerAngle + currentSpread;
+            Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
-        GameObject bullet = Instantiate(bulletPrefab, transform.position, rotation);
-        
-        if (bullet == null)
-        {
-            Debug.LogError("Failed to instantiate bullet!");
-            return;
-        }
-
-        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-        
-        if (rb != null)
-        {
-            rb.velocity = direction * bulletSpeed;
-        }
-        else
-        {
-            Debug.LogError("Bullet prefab is missing Rigidbody2D component!");
+            GameObject bullet = Instantiate(bulletPrefab, transform.position, rotation);
+            Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                Vector2 bulletDirection = rotation * Vector2.right;
+                rb.velocity = bulletDirection * bulletSpeed;
+            }
         }
     }
 
