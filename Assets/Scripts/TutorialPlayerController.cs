@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class TutorialPlayerController : MonoBehaviour
 {
@@ -35,6 +36,11 @@ public class TutorialPlayerController : MonoBehaviour
 
     // Animations
     private Animator animator;
+
+    // Power-up
+    private bool powerUpActive = false;
+    private bool canJumpOnAnyPlatform = false;
+    public Text powerUpTimerText;
 
     // Start is called before the first frame update
     void Start()
@@ -70,7 +76,14 @@ public class TutorialPlayerController : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            RestartGame();
+            if (powerUpActive)
+            {
+                Destroy(other.gameObject);
+            }
+            else
+            {
+                RestartGame();
+            }
         }
     }
     void LateUpdate()
@@ -97,7 +110,7 @@ public class TutorialPlayerController : MonoBehaviour
             ChangeColorDescending();
         }
 
-        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded)
+        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.Space)) && isGrounded)
         {
             playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
         }
@@ -115,7 +128,7 @@ public class TutorialPlayerController : MonoBehaviour
         if (currentPlatform != null)
         {
             Color platformColor = currentPlatform.GetComponent<SpriteRenderer>().color;
-            if (spriteRenderer.color != platformColor && platformColor != Color.white)
+            if (spriteRenderer.color != platformColor && platformColor != Color.white && !canJumpOnAnyPlatform)
             {
                 RestartGame();
                 return;
@@ -194,6 +207,12 @@ public class TutorialPlayerController : MonoBehaviour
 
         Color newColor = colorOrder[currentColorIndex];
 
+        // If power-up is active, maintain reduced opacity when changing color
+        if (powerUpActive)
+        {
+            newColor.a = 0.5f; // Maintain semi-transparency
+        }
+
         spriteRenderer.color = newColor; // Apply color change
     }
 
@@ -206,6 +225,12 @@ public class TutorialPlayerController : MonoBehaviour
         }
 
         Color newColor = colorOrder[currentColorIndex];
+
+        // If power-up is active, maintain reduced opacity when changing color
+        if (powerUpActive)
+        {
+            newColor.a = 0.5f; // Maintain semi-transparency
+        }
 
         spriteRenderer.color = newColor; // Apply color change
     }
@@ -225,7 +250,7 @@ public class TutorialPlayerController : MonoBehaviour
             Color platformColor = collision.gameObject.GetComponent<SpriteRenderer>().color;
             Debug.Log("Platform color: " + platformColor);
             Debug.Log("Player color: " + spriteRenderer.color);
-            if (spriteRenderer.color != platformColor && platformColor != Color.white)
+            if (spriteRenderer.color != platformColor && platformColor != Color.white && !canJumpOnAnyPlatform)
             {
                 RestartGame();
                 Debug.Log("Game Over! Player landed on a different color platform.");
@@ -257,5 +282,60 @@ public class TutorialPlayerController : MonoBehaviour
             isOnRotatingPlatform = false; 
             transform.SetParent(null);
         }
+    }
+
+    public void TemporaryPowerUpEffect(float duration)
+    {
+        StartCoroutine(PowerUpEffectCoroutine(duration));
+    }
+
+    private IEnumerator PowerUpEffectCoroutine(float duration)
+    {
+        powerUpActive = true;
+
+        SetPlayerOpacity(0.5f);
+        canJumpOnAnyPlatform = true;
+
+        float remainingTime = duration;
+        bool isBlinking = false;
+
+        while (remainingTime > 0)
+        {
+            powerUpTimerText.text = "Player Invincible for " + remainingTime.ToString("F1") + " secs";
+
+            // Start blinking effect when there are 3 seconds left
+            if (remainingTime <= 3f && !isBlinking)
+            {
+                isBlinking = true;
+            }
+
+            // If blinking, alternate between red and white
+            if (isBlinking)
+            {
+                powerUpTimerText.color = (Mathf.FloorToInt(remainingTime * 10) % 2 == 0) ? Color.red : Color.white;
+            }
+            else
+            {
+                powerUpTimerText.color = Color.white; // Normal color
+            }
+
+            yield return new WaitForSeconds(0.1f);
+            remainingTime -= 0.1f;
+        }
+
+        SetPlayerOpacity(1f);
+        canJumpOnAnyPlatform = false;
+        powerUpActive = false;
+
+        Debug.Log("Player returned to original state after power-up.");
+        powerUpTimerText.text = "";
+        powerUpTimerText.color = Color.white;
+    }
+
+    void SetPlayerOpacity(float opacity)
+    {
+        Color currentColor = spriteRenderer.color;
+        currentColor.a = opacity; // Set opacity
+        spriteRenderer.color = currentColor; // Apply color change
     }
 }
