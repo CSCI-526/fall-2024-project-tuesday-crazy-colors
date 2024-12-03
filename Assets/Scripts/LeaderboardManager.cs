@@ -111,7 +111,7 @@ public class LeaderboardManager : MonoBehaviour
             submitButton.interactable = false;     // Disable submit button during submission
             
             LeaderboardCreator.UploadNewEntry(Leaderboards.PublicKey, 
-                playerName, scoreManager.maxScore, 
+                playerName, PlayerPrefs.GetInt("MaxScore", 0), 
                 (success) => {
                     if (success)
                     {
