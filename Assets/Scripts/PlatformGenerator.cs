@@ -20,9 +20,9 @@ public class PlatformGenerator : MonoBehaviour
     private float platformWidth;
 
     public GameObject whitePowerUpPrefab;
-    public int powerUpInterval; 
+    public int powerUpInterval;
 
-     // Coin
+    // Coin
     public GameObject coinPrefab;
 
     public TMP_Text powerUpLabel; // Ensure this is a TMP_Text
@@ -35,20 +35,25 @@ public class PlatformGenerator : MonoBehaviour
     private EnemySpawner enemySpawner;
 
     // BG color change
-    
-    public Color[] darkBackgroundColors;  
-    
-    private int platformsGenerated = 0; 
+
+    public Color[] darkBackgroundColors;
+
+    private int platformsGenerated = 0;
 
     // Start is called before the first frame update
+
+
+    // Second Layer
+    public float secondLayerOffset = 9f; // Vertical offset for the second layer
+
 
     void Start()
     {
         platformWidth = platform.transform.localScale.x;
         platformColors = new Color[] { Color.red, Color.yellow, Color.green };
         enemySpawner = FindObjectOfType<EnemySpawner>();
-    
-         darkBackgroundColors = new Color[] { 
+
+        darkBackgroundColors = new Color[] {
             new Color(0.1f, 0.1f, 0.2f), // Very dark navy
             new Color(0.15f, 0.1f, 0.2f), // Dark purple
             new Color(0.2f, 0.1f, 0.15f), // Dark burgundy
@@ -66,7 +71,7 @@ public class PlatformGenerator : MonoBehaviour
             new Color(0.1f, 0.1f, 0.2f), // Deep indigo
             new Color(0.2f, 0.2f, 0.2f)
         };
-   
+
         // Initialize label as empty
         powerUpLabel.text = "";
     }
@@ -80,13 +85,13 @@ public class PlatformGenerator : MonoBehaviour
         {
             float verticalOffset = Random.Range(-verticalOffsetRange, verticalOffsetRange);
             transform.position = new Vector3(transform.position.x + platformWidth + distanceBetween, transform.position.y + verticalOffset, transform.position.z);
-            
+
             GameObject newPlatform = Instantiate(platform, transform.position, transform.rotation);
             newPlatform.tag = "Platform";
 
             Renderer platformRenderer = newPlatform.GetComponent<Renderer>();
             platformRenderer.material.color = platformColors[Random.Range(0, platformColors.Length)];
-            
+
             PlatformMover platformMover = newPlatform.AddComponent<PlatformMover>();
 
             // Assign behavior based on the current phase
@@ -140,6 +145,27 @@ public class PlatformGenerator : MonoBehaviour
 
             // Update the platform phase
             UpdatePlatformPhase();
+
+            // Second Layer Platform
+            Vector3 secondLayerPosition = new Vector3(transform.position.x, transform.position.y + secondLayerOffset, transform.position.z);
+            GameObject secondLayerPlatform = Instantiate(platform, secondLayerPosition, transform.rotation);
+            secondLayerPlatform.tag = "Platform";
+
+            Renderer secondLayerRenderer = secondLayerPlatform.GetComponent<Renderer>();
+            secondLayerRenderer.material.color = platformColors[Random.Range(0, platformColors.Length)];
+
+            PlatformMover secondLayerMover = secondLayerPlatform.AddComponent<PlatformMover>();
+            AssignPlatformBehavior(secondLayerMover);
+
+            if (enemySpawner != null)
+            {
+                enemySpawner.AddPlatform(secondLayerPlatform);
+            }
+
+            if (secondLayerMover.GetBehavior() == PlatformMover.PlatformBehavior.SeeSaw)
+            {
+                AddSeesawIndicator(secondLayerPlatform);
+            }
         }
     }
 
@@ -155,50 +181,50 @@ public class PlatformGenerator : MonoBehaviour
         jumpPad.transform.SetParent(platform.transform); // Parent to platform for easier management
     }
 
-private void AssignPlatformBehavior(PlatformMover platformMover)
-{
-    switch (platformPhase)
+    private void AssignPlatformBehavior(PlatformMover platformMover)
     {
-        case 0: // Static phase
-            platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static);
-            break;
-        case 1: // Static + Vertical movement + ShrinkAndGrowHorizontally phase
-            int randomBehavior = Random.Range(0, 3);
-            switch (randomBehavior)
-            {
-                case 0:
-                    platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static);
-                    break;
-                case 1:
-                    platformMover.SetBehavior(PlatformMover.PlatformBehavior.MoveVertically);
-                    break;
-                case 2:
-                    platformMover.SetBehavior(PlatformMover.PlatformBehavior.ShrinkAndGrowHorizontally);
-                    break;
-            }
-            break;
-        case 2: // All types combined (including SeeSaw)
-            randomBehavior = Random.Range(0, 4);
-            platformMover.SetBehavior((PlatformMover.PlatformBehavior)randomBehavior);
-            break;
-        default: // All types combined (including SeeSaw)
-            randomBehavior = Random.Range(0, 4);
-            platformMover.SetBehavior((PlatformMover.PlatformBehavior)randomBehavior);
-            break;
-    }
-}
-
-private void UpdatePlatformPhase()
-{
-    if (platformCount % 4 == 0)
-    {
-        platformPhase++;
-        if (platformPhase > 2)
+        switch (platformPhase)
         {
-            platformPhase = 3; // Stay in the "all types" phase
+            case 0: // Static phase
+                platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static);
+                break;
+            case 1: // Static + Vertical movement + ShrinkAndGrowHorizontally phase
+                int randomBehavior = Random.Range(0, 3);
+                switch (randomBehavior)
+                {
+                    case 0:
+                        platformMover.SetBehavior(PlatformMover.PlatformBehavior.Static);
+                        break;
+                    case 1:
+                        platformMover.SetBehavior(PlatformMover.PlatformBehavior.MoveVertically);
+                        break;
+                    case 2:
+                        platformMover.SetBehavior(PlatformMover.PlatformBehavior.ShrinkAndGrowHorizontally);
+                        break;
+                }
+                break;
+            case 2: // All types combined (including SeeSaw)
+                randomBehavior = Random.Range(0, 4);
+                platformMover.SetBehavior((PlatformMover.PlatformBehavior)randomBehavior);
+                break;
+            default: // All types combined (including SeeSaw)
+                randomBehavior = Random.Range(0, 4);
+                platformMover.SetBehavior((PlatformMover.PlatformBehavior)randomBehavior);
+                break;
         }
     }
-}
+
+    private void UpdatePlatformPhase()
+    {
+        if (platformCount % 4 == 0)
+        {
+            platformPhase++;
+            if (platformPhase > 2)
+            {
+                platformPhase = 3; // Stay in the "all types" phase
+            }
+        }
+    }
 
     private void AddSeesawIndicator(GameObject platform)
     {
