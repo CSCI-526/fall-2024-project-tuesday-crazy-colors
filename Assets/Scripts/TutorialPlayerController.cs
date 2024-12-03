@@ -27,6 +27,7 @@ public class TutorialPlayerController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     public float shootCooldown = 0.1f;
     private float lastShootTime;
+    public float fireRate = 0.1f;
     public GameObject bulletPrefab;
     public float bulletSpeed = 20f;
     public int bulletsPerShot = 3; // Number of bullets in each spread
@@ -117,15 +118,21 @@ public class TutorialPlayerController : MonoBehaviour
             playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
         }
 
-        if (Input.GetMouseButtonDown(0)) // Left mouse button
+        if (Input.GetMouseButton(0))
         {
-            Shoot();
+            if (Time.time >= lastShootTime + fireRate)
+            {
+                Shoot();
+                lastShootTime = Time.time;
+            }
         }
-        // UpdateCrosshairPosition();
-        // if (crosshair != null)
-        // {
-        //     UpdateCrosshairPosition();
-        // }
+
+        UpdateCrosshairPosition();
+        if (crosshair != null)
+        {
+            UpdateCrosshairPosition();
+        }
+        UpdateShootCooldown();
 
         if (currentPlatform != null)
         {
@@ -161,6 +168,10 @@ public class TutorialPlayerController : MonoBehaviour
         // Animations
         animator.SetFloat("Speed", playerRigidbody.velocity.x);
         animator.SetBool("Grounded", isGrounded);
+    }
+    void UpdateShootCooldown()
+    {
+        fireRate = Mathf.Max(0.05f, 0.2f + (20 * 0.007f)); // Ensure cooldown doesn't go below 0.1 seconds
     }
 
     void Shoot()
